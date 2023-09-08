@@ -1,5 +1,8 @@
 #include <drogon/drogon.h>
 #include <json/json.h>
+#include <jdbc/mysql_driver.h>
+#include <jdbc/mysql_connection.h>
+#include "mysql.h"
 using namespace drogon;
 
 void registerUser(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
@@ -23,6 +26,7 @@ void registerUser(const HttpRequestPtr &req, std::function<void(const HttpRespon
   std::cout << root["username"].asString() << std::endl;
   std::cout << root["password"].asString() << std::endl;
   res->setBody(output);
+  sql_add(root["username"].asString(), root["password"].asString());
 
   callback(res);
 }
