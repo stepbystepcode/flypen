@@ -3,3 +3,4 @@
 #include <jdbc/mysql_connection.h>
 //#include "mysql.cc"
 void sql_add(std::string  , std::string );
+bool sql_check(std::string);
