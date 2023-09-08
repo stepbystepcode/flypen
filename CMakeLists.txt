@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 project(flypen CXX)
 
+# 设置MySQL Connector/C++的根目录路径
+
+set(MYSQL_CONNECTOR_CPP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/mysql-connector")
+
 include(CheckIncludeFileCXX)
 
 check_include_file_cxx(any HAS_ANY)
@@ -19,22 +23,36 @@ endif ()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(${PROJECT_NAME} main.cc)
+add_executable(${PROJECT_NAME} main.cc mysql.cc)
+
+# 链接MySQL Connector/C++库
+# 包含MySQL Connector/C++的include目录
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+    ${MYSQL_CONNECTOR_CPP_ROOT}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/models
+)
+
+# 链接MySQL Connector/C++库
+# 包含MySQL Connector/C++的lib64目录
+link_directories(${MYSQL_CONNECTOR_CPP_ROOT}/lib64)
 
 # ##############################################################################
-# If you include the drogon source code locally in your project, use this method
-# to add drogon 
+# 如果你在项目中本地包含了drogon源代码，请使用以下方法添加drogon
 # add_subdirectory(drogon) 
 # target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
 #
-# and comment out the following lines
+# 并且注释掉以下几行
 find_package(Drogon CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
+target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon )
+target_link_libraries(${PROJECT_NAME} PRIVATE -L${MYSQL_CONNECTOR_CPP_ROOT}/lib64 -lmysqlcppconn)
 
+#link_directories(/home/lgy/c++kc/mysql-connector/lib64)
+#
 # ##############################################################################
-
 if (CMAKE_CXX_STANDARD LESS 17)
-    # With C++14, use boost to support any, string_view and filesystem
+    # 使用Boost来支持any、string_view和filesystem
     message(STATUS "use c++14")
     find_package(Boost 1.61.0 REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC Boost::boost)
@@ -51,17 +69,13 @@ aux_source_directory(models MODEL_SRC)
 
 drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
                     ${CMAKE_CURRENT_BINARY_DIR})
-# use the following line to create views with namespaces.
+# 使用以下行来创建带有命名空间的视图
 # drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
 #                     ${CMAKE_CURRENT_BINARY_DIR} TRUE)
-# use the following line to create views with namespace CHANGE_ME prefixed
-# and path namespaces.
+# 使用以下行来创建带有前缀CHANGE_ME和路径命名空间的视图
 # drogon_create_views(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/views
 #                     ${CMAKE_CURRENT_BINARY_DIR} TRUE CHANGE_ME)
 
-target_include_directories(${PROJECT_NAME}
-                           PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-                                   ${CMAKE_CURRENT_SOURCE_DIR}/models)
 target_sources(${PROJECT_NAME}
                PRIVATE
                ${SRC_DIR}
@@ -70,7 +84,7 @@ target_sources(${PROJECT_NAME}
                ${PLUGIN_SRC}
                ${MODEL_SRC})
 # ##############################################################################
-# uncomment the following line for dynamically loading views 
+# 取消下面一行的注释以启用动态加载视图
 # set_property(TARGET ${PROJECT_NAME} PROPERTY ENABLE_EXPORTS ON)
 
 # ##############################################################################

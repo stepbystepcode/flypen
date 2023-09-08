@@ -1,0 +1,10 @@
+MySQL Connector/C++ Build Information
+
+build-date           :  2023-03-23
+os-info              :  Linux-5.4.17-2136.314.6.2.el8uek.x86_64
+compiler             :  GNU 12.1.1
+protobuf-version     :  3.6.1
+build-type           :  Release
+ssl-library          :  OpenSSL 1.1.1t
+mysql-version        :  8.0.33
+
