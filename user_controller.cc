@@ -19,10 +19,12 @@ void registerUser(const HttpRequestPtr &req, std::function<void(const HttpRespon
 
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
-    std::cout << root["username"].asString() << std::endl;
-    std::cout << root["password"].asString() << std::endl;
+    std::cout <<"username :"<< root["username"].asString() << std::endl;
+    std::cout <<"passwd :"<< root["password"].asString() << std::endl;
     res->setBody(output);
-    sql_add(root["username"].asString(), root["password"].asString());
+    if(sql_check(root["username"].asString())) 
+        sql_add(root["username"].asString(), root["password"].asString());
+    else std::cout<<"sblgy"<<std::endl; 
 
     callback(res);
 }
