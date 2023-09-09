@@ -65,7 +65,7 @@ bool sql_check(std::string value)
     }
     catch (sql::SQLException &e)
     {
-        std::cerr << "SQL Exception: " << e.what() << std::endl;
+      //  std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 
     return result;

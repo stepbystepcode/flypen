@@ -16,7 +16,15 @@ int main()
       {
         registerUser(req, std::move(callback));
       });
+      drogon::app().registerHandler(
+      "/api/login",
+      [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+      {
+        loginUser(req, std::move(callback));
+      });
   drogon::app().run();
+
+
 
   return 0;
 }
