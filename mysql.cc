@@ -1,12 +1,11 @@
 // mysql
-#include "jdbc/mysql_driver.h"
-#include <jdbc/mysql_connection.h>
 #include "mysql.h"
 #include <jdbc/cppconn/prepared_statement.h>
-void sql_add(std::string username, std::string passwd)
-{
-    try
-    {
+#include <jdbc/mysql_connection.h>
+
+#include "jdbc/mysql_driver.h"
+void sql_add(std::string username, std::string passwd) {
+    try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -22,18 +21,13 @@ void sql_add(std::string username, std::string passwd)
         delete ptool;
         delete tool;
         delete con;
-    }
-    catch (sql::SQLException &e)
-    {
+    } catch (sql::SQLException &e) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-bool sql_check(std::string value)
-{
+bool sql_check(std::string value) {
     bool result = false;
-    try
-    {
-        
+    try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -45,8 +39,7 @@ bool sql_check(std::string value)
         sql::ResultSet *res = prepStmt->executeQuery();
 
         // 获取查询结果
-        if (!(res->next()))
-        {
+        if (!(res->next())) {
             result = true;
             // 提取所有列的值
             std::string username = res->getString("username");
@@ -62,20 +55,15 @@ bool sql_check(std::string value)
         delete res;
         delete prepStmt;
         delete con;
-    }
-    catch (sql::SQLException &e)
-    {
-      //  std::cerr << "SQL Exception: " << e.what() << std::endl;
+    } catch (sql::SQLException &e) {
+        //  std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 
     return result;
 }
-bool sql_check(std::string value,std::string passwd)
-{
+bool sql_check(std::string value, std::string passwd) {
     bool result = false;
-    try
-    {
-        
+    try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -87,14 +75,14 @@ bool sql_check(std::string value,std::string passwd)
         sql::ResultSet *res = prepStmt->executeQuery();
 
         // 获取查询结果
-        if ((res->next()))
-        {
-            //result = true;
-            // 提取所有列的值
+        if ((res->next())) {
+            // result = true;
+            //  提取所有列的值
             std::string username = res->getString("username");
             std::string password = res->getString("password");
             int createtime = res->getInt("createtime");
-            if(password==passwd) result = true;
+            if (password == passwd)
+                result = true;
 
             // 在这里输出或使用提取的值
             std::cout << "Username: " << username << std::endl;
@@ -105,14 +93,9 @@ bool sql_check(std::string value,std::string passwd)
         delete res;
         delete prepStmt;
         delete con;
-    }
-    catch (sql::SQLException &e)
-    {
+    } catch (sql::SQLException &e) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 
     return result;
 }
-//编程练习2.6
-//1.使用elis
-//cpp
