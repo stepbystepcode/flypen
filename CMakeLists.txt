@@ -23,7 +23,7 @@ endif ()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(${PROJECT_NAME} main.cc mysql.cc)
+add_executable(${PROJECT_NAME} main.cc mysql.cc user_controller.cc)
 
 # 链接MySQL Connector/C++库
 # 包含MySQL Connector/C++的include目录
