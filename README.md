@@ -17,6 +17,10 @@ Drogon是一个基于C++17/20的Http应用框架，使用Drogon可以方便的�
   ```
   sudo pacman -S openssl
   ```
+* Drogon Install
+  ```
+  yay -S drogon
+  ```
 ### MySQL
 ```
 sudo pacman -S mysql
