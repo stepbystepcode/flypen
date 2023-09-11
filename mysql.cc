@@ -9,11 +9,12 @@ void sql_add(std::string username, std::string passwd) {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
-        con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
+        con = driver->connect("tcp://localhost:3306", "root", "abc.123");
+        //con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
         con->setSchema("flypen");
         sql::Statement *tool;
         tool = con->createStatement();
-        std::string classmysql = "INSERT INTO  users(username, password,createtime) VALUES (?, ? ,0)";
+        std::string classmysql = "INSERT INTO  users(username, password,createtime) VALUES (?, ?,NOW())";
         sql::PreparedStatement *ptool = con->prepareStatement(classmysql);
         ptool->setString(1, username);
         ptool->setString(2, passwd);
@@ -31,7 +32,7 @@ bool sql_check(std::string value) {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
-        con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
+        con = driver->connect("tcp://localhost:3306", "root", "abc.123");
         con->setSchema("flypen");
         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
         sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
@@ -67,7 +68,7 @@ bool sql_check(std::string value, std::string passwd) {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
-        con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
+        con = driver->connect("tcp://127.0.0.1:3306", "root", "abc.123");
         con->setSchema("flypen");
         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
         sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
