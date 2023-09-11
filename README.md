@@ -1,7 +1,7 @@
 # Flypen
 c++ 课程设计作业
 ## Requirement
-### [drogon](https://drogonframework.github.io/drogon-docs/#/CHN-01-%E6%A6%82%E8%BF%B0) 
+### [Drogon](https://drogonframework.github.io/drogon-docs/#/CHN-01-%E6%A6%82%E8%BF%B0) 
 
 Drogon是一个基于C++17/20的Http应用框架，使用Drogon可以方便的使用C++构建各种类型的Web应用服务端程序。
 * Environment
