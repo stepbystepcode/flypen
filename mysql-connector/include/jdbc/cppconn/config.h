@@ -41,19 +41,19 @@
 #define HAVE_FUNCTION_STRTOIMAX 1
 #define HAVE_FUNCTION_STRTOUMAX 1
 
-#define HAVE_STDINT_H 1
+/* #undef HAVE_STDINT_H */
 #define HAVE_INTTYPES_H 1
 
-#define HAVE_INT8_T   1
-#define HAVE_UINT8_T  1
-#define HAVE_INT16_T  1
-#define HAVE_UINT16_T 1
-#define HAVE_INT32_T  1
-#define HAVE_UINT32_T 1
-#define HAVE_INT32_T  1
-#define HAVE_UINT32_T 1
-#define HAVE_INT64_T  1
-#define HAVE_UINT64_T 1
+/* #undef HAVE_INT8_T */
+/* #undef HAVE_UINT8_T */
+/* #undef HAVE_INT16_T */
+/* #undef HAVE_UINT16_T */
+/* #undef HAVE_INT32_T */
+/* #undef HAVE_UINT32_T */
+/* #undef HAVE_INT32_T */
+/* #undef HAVE_UINT32_T */
+/* #undef HAVE_INT64_T */
+/* #undef HAVE_UINT64_T */
 /* #undef HAVE_MS_INT8 */
 /* #undef HAVE_MS_UINT8 */
 /* #undef HAVE_MS_INT16 */

@@ -1,6 +1,7 @@
 #pragma once
 #include <drogon/drogon.h>
 using namespace drogon;
-
-void registerUser(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
-void loginUser(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+typedef std::string (*HandlerFunc)(const Json::Value&);
+void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, HandlerFunc handler);
+std::string registerUser(const Json::Value& rec_json);
+std::string loginUser(const Json::Value& rec_json);

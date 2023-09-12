@@ -9,8 +9,8 @@ void sql_add(std::string username, std::string passwd) {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
-        con = driver->connect("tcp://localhost:3306", "root", "abc.123");
-        //con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
+        //con = driver->connect("tcp://localhost:3306", "root", "abc.123");
+        con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
         con->setSchema("flypen");
         sql::Statement *tool;
         tool = con->createStatement();
@@ -32,7 +32,8 @@ bool sql_check(std::string value) {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
-        con = driver->connect("tcp://localhost:3306", "root", "abc.123");
+        //con = driver->connect("tcp://localhost:3306", "root", "abc.123");
+        con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
         con->setSchema("flypen");
         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
         sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
@@ -57,7 +58,7 @@ bool sql_check(std::string value) {
         delete prepStmt;
         delete con;
     } catch (sql::SQLException &e) {
-        //  std::cerr << "SQL Exception: " << e.what() << std::endl;
+          std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 
     return result;
@@ -68,7 +69,8 @@ bool sql_check(std::string value, std::string passwd) {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
-        con = driver->connect("tcp://127.0.0.1:3306", "root", "abc.123");
+        //con = driver->connect("tcp://127.0.0.1:3306", "root", "abc.123");
+        con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
         con->setSchema("flypen");
         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
         sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
