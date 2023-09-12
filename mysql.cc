@@ -14,7 +14,8 @@ void sql_add(std::string username, std::string passwd) {
         con->setSchema("flypen");
         sql::Statement *tool;
         tool = con->createStatement();
-        std::string classmysql = "INSERT INTO  users(username, password,createtime) userS (?, ?,NOW())";
+       std::string classmysql = "INSERT INTO users(username, password, createtime) VALUES (?, ?, NOW())";
+
         sql::PreparedStatement *ptool = con->prepareStatement(classmysql);
         ptool->setString(1, username);
         ptool->setString(2, passwd);
@@ -25,6 +26,7 @@ void sql_add(std::string username, std::string passwd) {
     } catch (sql::SQLException &e) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
+    
 }
 // bool sql_check(std::string user) {
 //     bool result = false;
@@ -62,7 +64,7 @@ void sql_add(std::string username, std::string passwd) {
 
 //     return result;
 // }
-bool sql_check(std::string user, std::string passwd) {
+bool sql_check(std::string user, std::string passwd ) {
     bool result = false;
     try {
         sql::mysql::MySQL_Driver *driver;
@@ -77,12 +79,13 @@ bool sql_check(std::string user, std::string passwd) {
         sql::ResultSet *res = prepStmt->executeQuery();
 
         // 获取查询结果
-        if ((res->next())) {
+        if (!(passwd == "@DEFAULT@")+!(res->next())) {
             result = true;
              //提取所有列的值
             std::string username = res->getString("username");
             std::string password = res->getString("password");
             int createtime = res->getInt("createtime");
+            std::cout<<passwd<<std::endl;
             if ( (passwd !=password)&&(passwd != "@DEFAULT@") )
                 result = false;
             // 在这里输出或使用提取的值
