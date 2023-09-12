@@ -14,7 +14,7 @@ void sql_add(std::string username, std::string passwd) {
         con->setSchema("flypen");
         sql::Statement *tool;
         tool = con->createStatement();
-        std::string classmysql = "INSERT INTO  users(username, password,createtime) VALUES (?, ?,NOW())";
+        std::string classmysql = "INSERT INTO  users(username, password,createtime) userS (?, ?,NOW())";
         sql::PreparedStatement *ptool = con->prepareStatement(classmysql);
         ptool->setString(1, username);
         ptool->setString(2, passwd);
@@ -26,43 +26,43 @@ void sql_add(std::string username, std::string passwd) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-bool sql_check(std::string value) {
-    bool result = false;
-    try {
-        sql::mysql::MySQL_Driver *driver;
-        driver = sql::mysql::get_mysql_driver_instance();
-        sql::Connection *con;
-        con = driver->connect("tcp://localhost:3306", "root", "abc.123");
-        con->setSchema("flypen");
-        std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
-        sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-        prepStmt->setString(1, value);
-        sql::ResultSet *res = prepStmt->executeQuery();
+// bool sql_check(std::string user) {
+//     bool result = false;
+//     try {
+//         sql::mysql::MySQL_Driver *driver;
+//         driver = sql::mysql::get_mysql_driver_instance();
+//         sql::Connection *con;
+//         con = driver->connect("tcp://localhost:3306", "root", "abc.123");
+//         con->setSchema("flypen");
+//         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
+//         sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
+//         prepStmt->setString(1, user);
+//         sql::ResultSet *res = prepStmt->executeQuery();
 
-        // 获取查询结果
-        if (!(res->next())) {
-            result = true;
-            // 提取所有列的值
-            std::string username = res->getString("username");
-            std::string password = res->getString("password");
-            int createtime = res->getInt("createtime");
+//         // 获取查询结果
+//         if (!(res->next())) {
+//             result = true;
+//             // 提取所有列的值
+//             std::string username = res->getString("username");
+//             std::string password = res->getString("password");
+//             int createtime = res->getInt("createtime");
 
-            // 在这里输出或使用提取的值
-            std::cout << "Username: " << username << std::endl;
-            std::cout << "Password: " << password << std::endl;
-            std::cout << "CreateTime: " << createtime << std::endl;
-        }
+//             // 在这里输出或使用提取的值
+//             std::cout << "Username: " << username << std::endl;
+//             std::cout << "Password: " << password << std::endl;
+//             std::cout << "CreateTime: " << createtime << std::endl;
+//         }
 
-        delete res;
-        delete prepStmt;
-        delete con;
-    } catch (sql::SQLException &e) {
-        //  std::cerr << "SQL Exception: " << e.what() << std::endl;
-    }
+//         delete res;
+//         delete prepStmt;
+//         delete con;
+//     } catch (sql::SQLException &e) {
+//         //  std::cerr << "SQL Exception: " << e.what() << std::endl;
+//     }
 
-    return result;
-}
-bool sql_check(std::string value, std::string passwd) {
+//     return result;
+// }
+bool sql_check(std::string user, std::string passwd) {
     bool result = false;
     try {
         sql::mysql::MySQL_Driver *driver;
@@ -72,19 +72,18 @@ bool sql_check(std::string value, std::string passwd) {
         con->setSchema("flypen");
         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
         sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-        prepStmt->setString(1, value);
+        prepStmt->setString(1, user);
         sql::ResultSet *res = prepStmt->executeQuery();
 
         // 获取查询结果
         if ((res->next())) {
-            // result = true;
-            //  提取所有列的值
+            result = true;
+             //提取所有列的值
             std::string username = res->getString("username");
             std::string password = res->getString("password");
             int createtime = res->getInt("createtime");
-            if (password == passwd)
-                result = true;
-
+            if ( (passwd !=password)&&(passwd != "@DEFAULT@") )
+                result = false;
             // 在这里输出或使用提取的值
             std::cout << "Username: " << username << std::endl;
             std::cout << "Password: " << password << std::endl;
