@@ -89,9 +89,9 @@ bool sql_check(std::string user, std::string passwd ) {
             if ( (passwd !=password)&&(passwd != "@DEFAULT@") )
                 result = false;
             // 在这里输出或使用提取的值
-            std::cout << "Username: " << username << std::endl;
-            std::cout << "Password: " << password << std::endl;
-            std::cout << "CreateTime: " << createtime << std::endl;
+            std::cout << "SQL: Username: " << username << std::endl;
+            std::cout << "SQL: Password: " << password << std::endl;
+            std::cout << "SQL: CreateTime: " << createtime << std::endl;
         }
 
         delete res;
