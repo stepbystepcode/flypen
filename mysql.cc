@@ -26,6 +26,7 @@ void sql_add(std::string username, std::string passwd) {
     } catch (sql::SQLException &e) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
+    
 }
 // bool sql_check(std::string user) {
 //     bool result = false;
