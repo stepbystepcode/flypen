@@ -10,4 +10,4 @@ std::string  jwtGen (const Json::Value& rec_json)
     .sign(jwt::algorithm::hs256{"ljlgyzzc"});
     std::cout<<token<<std::endl;
     return token;
-}j jk kj kjh kjlkj
+}
