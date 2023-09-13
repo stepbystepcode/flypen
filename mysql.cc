@@ -10,7 +10,8 @@ void sql_add(std::string username, std::string passwd) {
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
         //con = driver->connect("tcp://localhost:3306", "root", "abc.123");
-        con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
+        //con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
+        con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
         sql::Statement *tool;
         tool = con->createStatement();
@@ -71,7 +72,8 @@ bool sql_check(std::string user, std::string passwd ) {
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
         //con = driver->connect("tcp://127.0.0.1:3306", "root", "abc.123");
-        con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
+        //con = driver->connect("tcp://192.168.31.78:3306", "root", "abc.123");
+        con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
         sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
@@ -85,13 +87,12 @@ bool sql_check(std::string user, std::string passwd ) {
             std::string username = res->getString("username");
             std::string password = res->getString("password");
             int createtime = res->getInt("createtime");
-            std::cout<<passwd<<std::endl;
             if ( (passwd !=password)&&(passwd != "@DEFAULT@") )
                 result = false;
             // 在这里输出或使用提取的值
-            std::cout << "SQL: Username: " << username << std::endl;
-            std::cout << "SQL: Password: " << password << std::endl;
-            std::cout << "SQL: CreateTime: " << createtime << std::endl;
+            // std::cout << "SQL: Username: " << username << std::endl;
+            // std::cout << "SQL: Password: " << password << std::endl;
+            // std::cout << "SQL: CreateTime: " << createtime << std::endl;
         }
 
         delete res;

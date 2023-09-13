@@ -16,6 +16,10 @@ void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr 
     Json::FastWriter writer;
     std::string msg = handler(rec_json);
     res_json["msg"] = msg;
+    if (msg=="Login Success")
+        res_json["token"] = jwtGen(rec_json);
+    else
+        res_json["token"] = "";
     auto output = writer.write(res_json);
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
@@ -23,8 +27,8 @@ void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr 
     callback(res);
 }
 std::string registerUser(const Json::Value& rec_json) {
-    std::cout<<"Receive Username : "<<rec_json["username"].asString()<<std::endl;
-    std::cout<<"Receive Passwd: "<<rec_json["password"].asString()<<std::endl;
+    // std::cout<<"Receive Username : "<<rec_json["username"].asString()<<std::endl;
+    // std::cout<<"Receive Passwd: "<<rec_json["password"].asString()<<std::endl;
     if (sql_check(rec_json["username"].asString())){
         sql_add(rec_json["username"].asString(), rec_json["password"].asString());
         return "Sign up Success";
@@ -32,14 +36,8 @@ std::string registerUser(const Json::Value& rec_json) {
         return "User already exist";
 }
 std::string loginUser(const Json::Value& rec_json) {
-    std::cout<<rec_json["username"].asString()<<std::endl;
-    std::cout<<rec_json["password"].asString()<<std::endl;
-    if (sql_check(rec_json["username"].asString(), rec_json["password"].asString()))
-    {
+    if (sql_check(rec_json["username"].asString(), rec_json["password"].asString())){
         return "Login Success";
-        jwtGen(rec_json);
-    }
-        
-    else
+    }else
         return "Login Failed";
 }
