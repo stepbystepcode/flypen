@@ -47,7 +47,6 @@ link_directories(${MYSQL_CONNECTOR_CPP_ROOT}/lib64)
 find_package(Drogon CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon )
 target_link_libraries(${PROJECT_NAME} PRIVATE -L${MYSQL_CONNECTOR_CPP_ROOT}/lib64 -lmysqlcppconn)
-target_link_libraries(${PROJECT_NAME} PRIVATE ssl crypto)
 
 #link_directories(/home/lgy/c++kc/mysql-connector/lib64)
 #
