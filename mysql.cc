@@ -2,8 +2,51 @@
 #include "mysql.h"
 #include <jdbc/cppconn/prepared_statement.h>
 #include <jdbc/mysql_connection.h>
-
 #include "jdbc/mysql_driver.h"
+void sql_addconnect(std::string connectptr){
+    try{
+        sql::mysql::MySQL_Driver *driver;
+        driver = sql::mysql::get_mysql_driver_instance();
+        sql::Connection *con;
+        con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        con->setSchema("flypen");
+        sql::Statement *tool;
+        tool = con->createStatement();
+        std::string classmysql = "INSERT INTO users(username,password,time,connection) VALUES (?,?,NOW(),?)";
+        sql::PreparedStatement *insertconnect = con->prepareStatement(classmysql);
+        insertconnect->setString(4,connectptr);
+        delete insertconnect;
+        delete tool;
+        delete con;
+    }
+    catch (sql::SQLException &e) {
+        std::cerr << "SQL Exception: " << e.what() << std::endl;
+    }
+}
+void sql_addhistory(std::string sender,std::string receiver,std::string message,bool isread){
+    try{
+        sql::mysql::MySQL_Driver *driver;
+        driver = sql::mysql::get_mysql_driver_instance();
+        sql::Connection *con;
+        con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        con->setSchema("flypen");
+        sql::Statement *tool;
+        tool = con->createStatement();
+        std::string classmysql = "INSERT INTO chat(content,isread, receiver,sender,time) VALUES (?,?,?,?,NOW())";
+        sql::PreparedStatement *insertdata = con->prepareStatement(classmysql);
+        insertdata->setString(1, message);
+        insertdata->setBoolean(2,isread);
+        insertdata->setString(3,sender);
+        insertdata->setString(4,receiver);
+        insertdata->executeUpdate();
+        delete insertdata;
+        delete tool;
+        delete con;
+    }
+    catch (sql::SQLException &e) {
+        std::cerr << "SQL Exception: " << e.what() << std::endl;
+    }
+}
 void sql_add(std::string username, std::string passwd) {
     try {
         sql::mysql::MySQL_Driver *driver;
