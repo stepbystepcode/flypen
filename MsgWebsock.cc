@@ -3,9 +3,9 @@
 #include <json/json.h>
 #include "mysql.h"
 
-WebSocketConnectionPtr findTargetConnection(const std::string& targetClientId) {
+// WebSocketConnectionPtr findTargetConnection(const std::string& targetClientId) {
 
-}
+// }
 std::set<WebSocketConnectionPtr> MsgWebsock::connections;
 void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr& wsConnPtr, std::string &&message, const WebSocketMessageType &type)
 {   
@@ -21,12 +21,10 @@ void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr& wsConnPtr, std::
         std::string receiver = jsonValue["receiver"].asString();
         std::string sender = jsonValue["sender"].asString();
        // std::cout << "Name: " << name << std::endl;
-        wsConnPtr->send("name");
-
-
-    }
-    else
-    {
+        wsConnPtr->send("Hello, " + message + "!");
+        sql_addhistory(sender,receiver,content,isread);
+        std::cout << "Success parse JSON" << std::endl;
+    }else{
         std::cout << "Failed to parse JSON" << std::endl;
     }
     // write your application logic here
@@ -34,8 +32,7 @@ void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr& wsConnPtr, std::
     //判断登录状态
     //  WebSocketConnectionPtr targetConnection = findTargetConnection(username);
     //  targetConnection->send(message);
-    wsConnPtr->send("Hello, " + message + "!");
-    sql_addhistory(sender,receiver,message,isread);
+    
 
 
 
@@ -68,7 +65,7 @@ void MsgWebsock::handleNewConnection(const HttpRequestPtr &req, const WebSocketC
     {
         std::string bearerToken = authHeader.substr(7);
         // 在此处使用Bearer Token进行身份验证
-        std::cout<<jwtDecrypt(bearerToken)<<std::endl;
+        std::cout<<"token claim:"<<jwtDecrypt(bearerToken)<<std::endl;
     }
     else
     {
