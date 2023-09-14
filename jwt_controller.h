@@ -3,4 +3,5 @@
 #include <json/json.h>
 #include <cstring>
 std::string jwtGen(const Json::Value& rec_json);
+void jwtVerify(const std::string& token);
 #endif
