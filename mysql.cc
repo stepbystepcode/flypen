@@ -79,13 +79,13 @@ bool sql_check(std::string user, std::string passwd ) {
         sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
         prepStmt->setString(1, user);
         sql::ResultSet *res = prepStmt->executeQuery();
-          std::cout << passwd << std::endl;
+      //    std::cout << passwd << std::endl;
 
         // 获取查询结果
         // (¬A ∧B) ∨ (A ∧¬B)
         if (((passwd != "@DEFAULT@")&&(res->next()))||((passwd == "@DEFAULT@")&&(!(res->next())))) {
             result = true;
-            std::cout << "in" << std::endl;
+            //std::cout << "in" << std::endl;
              //提取所有列的值
             std::string username = res->getString("username");
             std::string password = res->getString("password");
@@ -93,9 +93,9 @@ bool sql_check(std::string user, std::string passwd ) {
             if ( (passwd !=password)&&(passwd != "@DEFAULT@") )
                 result = false;
             // 在这里输出或使用提取的值
-            std::cout << "SQL: Username: " << username << std::endl;
-            std::cout << "SQL: Password: " << password << std::endl;
-            std::cout << "SQL: CreateTime: " << createtime << std::endl;
+            // std::cout << "SQL: Username: " << username << std::endl;
+            // std::cout << "SQL: Password: " << password << std::endl;
+            // std::cout << "SQL: CreateTime: " << createtime << std::endl;
         }
 
         delete res;
