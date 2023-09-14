@@ -23,7 +23,7 @@ void sql_addconnect(std::string connectptr){
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-void sql_addhistory(std::string sender,std::string receiver,std::string message,bool isread){
+void sql_addhistory(std::string sender,std::string receiver,std::string message,std::string isread){
     try{
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
@@ -35,7 +35,7 @@ void sql_addhistory(std::string sender,std::string receiver,std::string message,
         std::string classmysql = "INSERT INTO chat(content,isread, receiver,sender,time) VALUES (?,?,?,?,NOW())";
         sql::PreparedStatement *insertdata = con->prepareStatement(classmysql);
         insertdata->setString(1, message);
-        insertdata->setBoolean(2,isread);
+        insertdata->setString(2,isread);
         insertdata->setString(3,sender);
         insertdata->setString(4,receiver);
         insertdata->executeUpdate();
