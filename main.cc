@@ -1,6 +1,7 @@
 #include <drogon/drogon.h>
-
+#include "MsgWebsock.h"
 #include "user_controller.h"
+#include <drogon/WebSocketController.h>
 using namespace drogon;
 
 int main() {
@@ -12,6 +13,9 @@ int main() {
     drogon::app().registerHandler("/api/login", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         Handle(req, std::move(callback),loginUser);
     });
+
+    //drogon::app().registerWebSocketController("/api/chat");
+    drogon::app().registerWebSocketController("/api/chat", "MsgWebsock");
     drogon::app().run();
     return 0;
 }

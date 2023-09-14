@@ -11,3 +11,18 @@ std::string jwtGen(const Json::Value& rec_json)
     .sign(jwt::algorithm::hs256{"secret"});
     return std::string(token);
 }
+// std::string jwtDecode(const std::string& token)
+// {
+//     auto decoded_token = jwt::decode(token);
+//     return decoded_token.get_payload_claim("name").as_string();
+// }
+
+std::string jwtDecrypt(const std::string& token)
+{
+    auto decrypted_token = jwt::decode(token);
+    auto verifier = jwt::verify()
+        .allow_algorithm(jwt::algorithm::hs256{"secret"})
+        .with_issuer("auth0");
+    verifier.verify(decrypted_token);
+    return decrypted_token.get_payload_claim("name").as_string();
+}
