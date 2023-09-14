@@ -2,7 +2,7 @@
  cd build 
  cmake ..
  make clean 
- make
+ make -j 20
  ./flypen
  cd ..
     
