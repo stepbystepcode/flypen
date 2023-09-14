@@ -13,7 +13,7 @@ class MsgWebsock : public drogon::WebSocketController<MsgWebsock>
     void handleNewConnection(const HttpRequestPtr &,
                                      const WebSocketConnectionPtr&) override;
     void handleConnectionClosed(const WebSocketConnectionPtr&) override;
-    //static std::set<WebSocketConnectionPtr> connections;
+    static std::set<WebSocketConnectionPtr> connections;
     WS_PATH_LIST_BEGIN
     // list path definitions here;
     WS_PATH_ADD("/api/chat");
