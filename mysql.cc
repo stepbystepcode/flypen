@@ -3,6 +3,7 @@
 #include <jdbc/cppconn/prepared_statement.h>
 #include <jdbc/mysql_connection.h>
 #include "jdbc/mysql_driver.h"
+#include "json/json.h"
 void sql_addconnect(std::string connectptr){
     try{
         sql::mysql::MySQL_Driver *driver;
@@ -150,4 +151,38 @@ bool sql_check(std::string user, std::string passwd ) {
     std::cout << result<< std::endl;
 
     return result;
+}
+std::string  sql_find_my_msg(std::string user)
+{   
+    std::cout<<"login user : "<<user<<std::endl;
+    try {
+        sql::mysql::MySQL_Driver *driver;
+        driver = sql::mysql::get_mysql_driver_instance();
+        sql::Connection *con;
+        con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        con->setSchema("flypen");
+        std::string sql = "SELECT * FROM chat WHERE receiver = ? AND isread = 0";
+        sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
+        prepStmt->setString(1, user);
+        sql::ResultSet *res = prepStmt->executeQuery();
+        std::string result ="{ ";
+
+        // 获取查询结果
+        while ((res->next())) {
+            result += "\"" + res->getString("sender") + "\":\"" + res->getString("content") + "\",";          
+            // 提取当前行的值
+
+        }
+        result += "}";
+        std::cout <<"msgs :"<< result << std::endl;
+        delete res;
+        delete prepStmt;
+        delete con;
+        return result;
+    } catch (sql::SQLException &e) {
+         std::cerr << "SQL Exception: " << e.what() << std::endl;
+         return "error";
+    }
+
+    
 }
