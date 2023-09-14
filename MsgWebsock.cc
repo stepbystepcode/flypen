@@ -10,6 +10,7 @@ std::set<WebSocketConnectionPtr> MsgWebsock::connections;
 void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr& wsConnPtr, std::string &&message, const WebSocketMessageType &type)
 {   
     auto json =(message);
+    std ::cout<<"recved json: "<<json<<std::endl;
     Json::Value jsonValue;
     Json::Reader jsonReader;
     if (jsonReader.parse(json, jsonValue))
@@ -21,7 +22,7 @@ void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr& wsConnPtr, std::
         std::string receiver = jsonValue["receiver"].asString();
         std::string sender = jsonValue["sender"].asString();
        // std::cout << "Name: " << name << std::endl;
-        wsConnPtr->send("Hello, " + message + "!");
+        wsConnPtr->send("RECIVE: " + message + "!");
         sql_addhistory(sender,receiver,content,isread);
         std::cout << "Success parse JSON" << std::endl;
     }else{
@@ -60,12 +61,14 @@ void MsgWebsock::handleNewConnection(const HttpRequestPtr &req, const WebSocketC
     connections.insert(wsConnPtr);
     // 在此处执行任何其他初始化操作
     // 例如，向连接发送欢迎消
+    std:: string  user;
     std::string authHeader = req->getHeader("Authorization");
     if (authHeader.substr(0, 7) == "Bearer ")
     {
         std::string bearerToken = authHeader.substr(7);
         // 在此处使用Bearer Token进行身份验证
-        std::cout<<"token claim:"<<jwtDecrypt(bearerToken)<<std::endl;
+       user = jwtDecrypt(bearerToken);
+        std::cout<<"token claim:"<<user<<std::endl;
     }
     else
     {
@@ -73,7 +76,7 @@ void MsgWebsock::handleNewConnection(const HttpRequestPtr &req, const WebSocketC
         std::cout<<"sblgy"<<std::endl;
     }
     wsConnPtr->send("Welcome to the WebSocket server! The connect has been established successfully.");
-
+    wsConnPtr->send(sql_find_my_msg(user));
 }
 
 void MsgWebsock::handleConnectionClosed(const WebSocketConnectionPtr& wsConnPtr)
