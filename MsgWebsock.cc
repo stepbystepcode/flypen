@@ -1,9 +1,14 @@
 #include "MsgWebsock.h"
 #include "jwt_controller.h"
 #include <json/json.h>
+#include "mysql.h"
+
+WebSocketConnectionPtr findTargetConnection(const std::string& targetClientId) {
+
+}
 std::set<WebSocketConnectionPtr> MsgWebsock::connections;
 void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr& wsConnPtr, std::string &&message, const WebSocketMessageType &type)
-{
+{   
     auto json =(message);
     Json::Value jsonValue;
     Json::Reader jsonReader;
@@ -24,6 +29,17 @@ void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr& wsConnPtr, std::
     {
         std::cout << "Failed to parse JSON" << std::endl;
     }
+    // write your application logic here
+    //解信息获得username和message
+    //判断登录状态
+    //  WebSocketConnectionPtr targetConnection = findTargetConnection(username);
+    //  targetConnection->send(message);
+    wsConnPtr->send("Hello, " + message + "!");
+    sql_addhistory(sender,receiver,message,isread);
+
+
+
+    
 
 
     // 提取属性值
@@ -37,6 +53,10 @@ void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr& wsConnPtr, std::
 void MsgWebsock::handleNewConnection(const HttpRequestPtr &req, const WebSocketConnectionPtr& wsConnPtr)
 {
     // write your application logic here
+
+
+    //sql_addconnect();
+
     const std::string &clientIP = req->peerAddr().toIp();
     LOG_INFO << "New WebSocket connection from IP: " << clientIP;
     // 添加连接到集合
@@ -56,9 +76,11 @@ void MsgWebsock::handleNewConnection(const HttpRequestPtr &req, const WebSocketC
         std::cout<<"sblgy"<<std::endl;
     }
     wsConnPtr->send("Welcome to the WebSocket server! The connect has been established successfully.");
+
 }
 
 void MsgWebsock::handleConnectionClosed(const WebSocketConnectionPtr& wsConnPtr)
-{
+{   
+
     // write your application logic here
 }
