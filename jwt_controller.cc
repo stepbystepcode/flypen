@@ -33,6 +33,6 @@ std::string jwtDecrypt(const std::string& token)
         return decoded_token.get_payload_claim("name").as_string();
     } catch (const std::exception& e) {
         std::cout<<"Failed to decrypt JWT: " + std::string(e.what())<<std::endl;
-        return "wrong" ;
+        throw std::runtime_error("Failed to decrypt JWT");
     }
 }
