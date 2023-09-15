@@ -2,11 +2,7 @@
 #include "msg_websocket.h"
 #include "jwt_controller.h"
 #include "mysql.h"
-
-// WebSocketConnectionPtr findTargetConnection(const std::string& targetClientId) {
-
-// }
-std::set<WebSocketConnectionPtr> MsgWebsock::connections;
+extern std::unordered_map<std::string, WebSocketConnectionPtr> clientTable;
 void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr &wsConnPtr, std::string &&message, const WebSocketMessageType &type)
 {
     auto json = (message);
@@ -20,15 +16,18 @@ void MsgWebsock::handleNewMessage(const WebSocketConnectionPtr &wsConnPtr, std::
         std::string time = jsonValue["time"].asString();
         std::string isread = jsonValue["isread"].asString();
         std::string receiver = jsonValue["receiver"].asString();
-        //change next line, dangerous code
         std::string sender = jsonValue["sender"].asString();
-        // std::string authHeader = req->getHeader("Authorization"); //error: ‘req’ was not declared in this scope
-        // std::string bearerToken = authHeader.substr(7);
-        // std::string sender = jwtDecrypt(bearerToken);
-        // std::cout << "Name: " << name << std::endl;
-        //I need get sender from token, instead of get from json
         wsConnPtr->send("RECIVE: " + message);
-        sql_addhistory(sender, receiver, content, isread);
+        //找连接
+        std::unordered_map<std::string, WebSocketConnectionPtr>::iterator it = clientTable.find(receiver);
+        if (it != clientTable.end())
+        {
+            std::string message = "{'" + sender + ':' + content + "'} ";
+            WebSocketConnectionPtr targetptr =it->second;
+            targetptr->send(message);
+            sql_addhistory(sender, receiver, content, "1");
+        }
+        else sql_addhistory(sender, receiver, content, "0");
         std::cout << "Success parse JSON" << std::endl;
     }
     else
@@ -48,7 +47,6 @@ void MsgWebsock::handleNewConnection(const HttpRequestPtr &req, const WebSocketC
     // sql_addconnect();
     const std::string &clientIP = req->peerAddr().toIp();
     LOG_INFO << "New WebSocket connection from IP: " << clientIP;
-
     // 在此处执行任何其他初始化操作
     // 例如，向连接发送欢迎消
     std::string user;
@@ -61,8 +59,10 @@ void MsgWebsock::handleNewConnection(const HttpRequestPtr &req, const WebSocketC
         {
             user = jwtDecrypt(bearerToken);
             std::cout << "Connect success: " << user << std::endl;
-            // 添加连接到集合
-            connections.insert(wsConnPtr);
+            // 添加到表
+            clientTable[user] = wsConnPtr;
+            std::shared_ptr<std::string> context = std::make_shared<std::string>(user);
+            wsConnPtr->setContext(context);
             wsConnPtr->send(sql_find_my_msg(user));
         }
         catch (const std::exception &e)
@@ -82,6 +82,8 @@ void MsgWebsock::handleNewConnection(const HttpRequestPtr &req, const WebSocketC
 
 void MsgWebsock::handleConnectionClosed(const WebSocketConnectionPtr &wsConnPtr)
 {
-
+    std::shared_ptr<std::string> strptr = wsConnPtr->getContext<std::string>();
+    std::string username = *strptr;
+    clientTable[username] = nullptr;
     // write your application logic here
 }
