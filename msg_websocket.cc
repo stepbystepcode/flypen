@@ -50,10 +50,9 @@ void MsgWebsock::handleNewConnection(const HttpRequestPtr &req, const WebSocketC
     // 在此处执行任何其他初始化操作
     // 例如，向连接发送欢迎消
     std::string user;
-    std::string authHeader = req->getHeader("Authorization");
-    if (authHeader.substr(0, 7) == "Bearer ")
+    std::string bearerToken = req->getHeader("Sec-WebSocket-Protocol");
+    if (bearerToken!="")
     {
-        std::string bearerToken = authHeader.substr(7);
         // 在此处使用Bearer Token进行身份验证
         try
         {
