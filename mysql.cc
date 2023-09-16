@@ -189,7 +189,7 @@ std::string sql_find_my_msg(std::string user)
         
 
         ///////////////////////////////////////////update end
-        std::string result = "{ ";
+        std::string result =" ";
 
         // 获取查询结果
         while ((res->next()))
@@ -202,7 +202,11 @@ std::string sql_find_my_msg(std::string user)
             result += "\"" + res->getString("sender") + "\":\"" + res->getString("content") + "\",";
             // 提取当前行的值
         }
-        result += "}";
+        result = result.substr(0, result.length() - 1);
+        if(result.length() != 1)
+        result = "\"list\":                          [" + result;
+        result = "{"+ result;
+        result += "]}";
         std::cout << "msgs :" << result << std::endl;
         delete res;
         delete prepStmt;

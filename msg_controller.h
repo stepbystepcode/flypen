@@ -3,4 +3,5 @@
 #include <drogon/WebSocketController.h>
 using namespace drogon;
 void Chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+void Check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
 #endif

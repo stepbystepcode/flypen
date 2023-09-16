@@ -45,3 +45,41 @@ void Chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
     res->setBody(output);
     callback(res);
 }
+void Check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback){
+    auto body = req->getBody();
+    Json::Value rec_json,res_json;
+    Json::Reader reader;
+    std::string bodyStr(body);
+    std::string sender;
+    Json::FastWriter writer;
+    std::string authHeader = req->getHeader("Authorization");
+    if (authHeader.substr(0, 7) == "Bearer ")
+    {
+        std::string bearerToken = authHeader.substr(7);
+        // 在此处使用Bearer Token进行身份验证
+        try
+        {
+            sender = jwtDecrypt(bearerToken);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cout << "Wrong token" << std::endl;
+        }
+    }
+    else
+    {
+        // 连接没有Authorization头部Bearer Token
+        std::cout << "No Authorization" << std::endl;
+    }
+
+    auto res = HttpResponse::newHttpResponse();
+   //  sql_find_my_msg(sender)
+    res->addHeader("Access-Control-Allow-Origin", "*");
+    //std::cout<<sql_find_my_msg(sender)<<std::endl;
+    std::cout<<"sender"<<std::endl;
+
+    res->setBody(sql_find_my_msg(sender));
+    callback(res);
+
+}
