@@ -170,24 +170,43 @@ std::string sql_find_my_msg(std::string user)
     std::cout << "login user: " << user << std::endl;
     try
     {
+        
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
         con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
-        std::string sql = "SELECT * FROM chat WHERE receiver = ? AND isread = 0";
-        sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
+        ////////////////////////////////////////////find begin
+        std::string sqlFind = "SELECT * FROM chat WHERE receiver = ? AND isread = 0";
+        
+        sql::PreparedStatement *prepStmt = con->prepareStatement(sqlFind);
         prepStmt->setString(1, user);
         sql::ResultSet *res = prepStmt->executeQuery();
-        std::string result = "{ ";
+        ////////////////////////////////////////////find end and  update begin
+        std::string sql0To1= "UPDATE chat SET isread = 1 WHERE id = ?";
+        sql::PreparedStatement *prepStmt0To1 = con->prepareStatement(sql0To1);
+        int id;
+        
+
+        ///////////////////////////////////////////update end
+        std::string result =" ";
 
         // 获取查询结果
         while ((res->next()))
         {
+            id = res->getInt("id");
+            prepStmt0To1->setInt(1, id);
+            
+            sql::ResultSet *res0To1 = prepStmt0To1->executeQuery();
+
             result += "\"" + res->getString("sender") + "\":\"" + res->getString("content") + "\",";
             // 提取当前行的值
         }
-        result += "}";
+        result = result.substr(0, result.length() - 1);
+        if(result.length() != 1)
+        result = "\"list\":                          [" + result;
+        result = "{"+ result;
+        result += "]}";
         std::cout << "msgs :" << result << std::endl;
         delete res;
         delete prepStmt;
