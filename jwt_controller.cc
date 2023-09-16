@@ -4,14 +4,14 @@
 #include <cstring>
 #include <chrono>
 using namespace jwt;
-std::string jwtGen(const Json::Value& rec_json)
+std::string jwtGen(const Json::Value& req_json)
 {
     auto now = std::chrono::system_clock::now();
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
     std::string timestamp = std::to_string(ms);
     auto token = jwt::create()
     .set_type("JWS")
-    .set_payload_claim("name", jwt::claim(rec_json["username"].asString()))
+    .set_payload_claim("name", jwt::claim(req_json["username"].asString()))
     .set_payload_claim("time", jwt::claim(timestamp))
     .sign(jwt::algorithm::hs256{"secret"});
     return std::string(token);

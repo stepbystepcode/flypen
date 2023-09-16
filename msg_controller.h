@@ -2,6 +2,6 @@
 #define _MSG_CONTROLLER_H_
 #include <drogon/WebSocketController.h>
 using namespace drogon;
-void Chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
-void Check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
 #endif
