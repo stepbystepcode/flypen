@@ -14,10 +14,10 @@ int main() {
         Handle(req, std::move(callback),loginUser);
     });
     drogon::app().registerHandler("/api/chat", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
-        Chat(req, std::move(callback));
+        chat(req, std::move(callback));
     });
     drogon::app().registerHandler("/api/check", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
-        Check(req, std::move(callback));
+        check(req, std::move(callback));
     });
     drogon::app().run();
     return 0;

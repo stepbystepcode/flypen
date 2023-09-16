@@ -1,13 +1,13 @@
 // mysql
 #include "mysql.h"
+
 #include <jdbc/cppconn/prepared_statement.h>
 #include <jdbc/mysql_connection.h>
+
 #include "jdbc/mysql_driver.h"
 #include "json/json.h"
-void sql_addconnect(std::string connectptr)
-{
-    try
-    {
+void sql_addconnect(std::string connectptr) {
+    try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -21,16 +21,12 @@ void sql_addconnect(std::string connectptr)
         delete insertconnect;
         delete tool;
         delete con;
-    }
-    catch (sql::SQLException &e)
-    {
+    } catch (sql::SQLException &e) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-void sql_addhistory(std::string sender, std::string receiver, std::string message, std::string isread)
-{
-    try
-    {
+void sql_addhistory(std::string sender, std::string receiver, std::string message, std::string isread) {
+    try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -48,16 +44,12 @@ void sql_addhistory(std::string sender, std::string receiver, std::string messag
         delete insertdata;
         delete tool;
         delete con;
-    }
-    catch (sql::SQLException &e)
-    {
+    } catch (sql::SQLException &e) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-void sql_add(std::string username, std::string passwd)
-{
-    try
-    {
+void sql_add(std::string username, std::string passwd) {
+    try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -75,9 +67,7 @@ void sql_add(std::string username, std::string passwd)
         delete ptool;
         delete tool;
         delete con;
-    }
-    catch (sql::SQLException &e)
-    {
+    } catch (sql::SQLException &e) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
@@ -117,11 +107,9 @@ void sql_add(std::string username, std::string passwd)
 
 //     return result;
 // }
-bool sql_check(std::string user, std::string passwd)
-{
+bool sql_check(std::string user, std::string passwd) {
     bool result = false;
-    try
-    {
+    try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -137,8 +125,7 @@ bool sql_check(std::string user, std::string passwd)
 
         // 获取查询结果
         // (¬A ∧B) ∨ (A ∧¬B)
-        if (((passwd != "@DEFAULT@") && (res->next())) || ((passwd == "@DEFAULT@") && (!(res->next()))))
-        {
+        if (((passwd != "@DEFAULT@") && (res->next())) || ((passwd == "@DEFAULT@") && (!(res->next())))) {
             result = true;
             // std::cout << "in" << std::endl;
             // 提取所有列的值
@@ -156,65 +143,67 @@ bool sql_check(std::string user, std::string passwd)
         delete res;
         delete prepStmt;
         delete con;
-    }
-    catch (sql::SQLException &e)
-    {
+    } catch (sql::SQLException &e) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
     std::cout << result << std::endl;
 
     return result;
 }
-std::string sql_find_my_msg(std::string user)
-{
-    std::cout << "login user: " << user << std::endl;
-    try
-    {
-        
+Json::Value sql_find_my_msg(std::string me, std::string who_send_me) {
+    // std::cout << "login user: " << user << std::endl;
+    try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
         con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
         ////////////////////////////////////////////find begin
-        std::string sqlFind = "SELECT * FROM chat WHERE receiver = ? AND isread = 0";
-        
+        std::string sqlFind = "SELECT * FROM chat WHERE sender = ? AND receiver = ? AND isread = 0";
+
         sql::PreparedStatement *prepStmt = con->prepareStatement(sqlFind);
-        prepStmt->setString(1, user);
+        prepStmt->setString(1, who_send_me);
+        prepStmt->setString(2, me);
+        std::cout << "sender: " << who_send_me << std::endl;
+        std::cout << "receiver: " << me << std::endl;
         sql::ResultSet *res = prepStmt->executeQuery();
         ////////////////////////////////////////////find end and  update begin
-        std::string sql0To1= "UPDATE chat SET isread = 1 WHERE id = ?";
+        std::string sql0To1 = "UPDATE chat SET isread = 1 WHERE id = ?";
         sql::PreparedStatement *prepStmt0To1 = con->prepareStatement(sql0To1);
         int id;
-        
-
         ///////////////////////////////////////////update end
-        std::string result =" ";
+        Json::Value result;
+        std::map<std::string, std::vector<Json::Value>> grouped;
 
-        // 获取查询结果
-        while ((res->next()))
-        {
+        while (res->next()) {
+            std::string sender = res->getString("sender");
+            std::string content = res->getString("content");
+            std::string time = res->getString("time");
             id = res->getInt("id");
             prepStmt0To1->setInt(1, id);
-            
             sql::ResultSet *res0To1 = prepStmt0To1->executeQuery();
 
-            result += "\"" + res->getString("sender") + "\":\"" + res->getString("content") + "\",";
-            // 提取当前行的值
+            Json::Value item;
+            item["content"] = content;
+            item["time"] = time;
+
+            grouped[sender].push_back(item);
         }
-        result = result.substr(0, result.length() - 1);
-        if(result.length() != 1)
-        result = "\"list\":                          [" + result;
-        result = "{"+ result;
-        result += "]}";
-        std::cout << "msgs :" << result << std::endl;
+
+        for (auto &[sender, items] : grouped) {
+            Json::Value arr;
+            for (auto &item : items) {
+                arr.append(item);
+            }
+            Json::Value obj;
+            obj[sender] = arr;
+            result.append(obj);
+        }
         delete res;
         delete prepStmt;
         delete con;
         return result;
-    }
-    catch (sql::SQLException &e)
-    {
+    } catch (sql::SQLException &e) {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
         return "error";
     }
