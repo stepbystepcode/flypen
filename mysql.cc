@@ -68,7 +68,6 @@ void sql_add(std::string username, std::string passwd)
         sql::Statement *tool;
         tool = con->createStatement();
         std::string classmysql = "INSERT INTO users(username, password, createtime) VALUES (?, ?, NOW())";
-
         sql::PreparedStatement *ptool = con->prepareStatement(classmysql);
         ptool->setString(1, username);
         ptool->setString(2, passwd);
