@@ -86,3 +86,4 @@ void MsgWebsock::handleConnectionClosed(const WebSocketConnectionPtr &wsConnPtr)
     clientTable[username] = nullptr;
     // write your application logic here
 }
+
