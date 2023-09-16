@@ -159,11 +159,13 @@ Json::Value sql_find_my_msg(std::string me, std::string who_send_me) {
         con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
         ////////////////////////////////////////////find begin
-        std::string sqlFind = "SELECT * FROM chat WHERE sender = ? AND receiver = ? AND isread = 0";
-
+        //std::string sqlFind = "SELECT * FROM chat WHERE sender = ? AND receiver = ?";
+        std::string sqlFind = "SELECT * FROM chat WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)";
         sql::PreparedStatement *prepStmt = con->prepareStatement(sqlFind);
         prepStmt->setString(1, who_send_me);
         prepStmt->setString(2, me);
+        prepStmt->setString(3, me);
+        prepStmt->setString(4, who_send_me);
         std::cout << "sender: " << who_send_me << std::endl;
         std::cout << "receiver: " << me << std::endl;
         sql::ResultSet *res = prepStmt->executeQuery();
@@ -172,33 +174,49 @@ Json::Value sql_find_my_msg(std::string me, std::string who_send_me) {
         sql::PreparedStatement *prepStmt0To1 = con->prepareStatement(sql0To1);
         int id;
         ///////////////////////////////////////////update end
+        // Json::Value result;
+        // std::map<std::string, std::vector<Json::Value>> grouped;
+
+        // while (res->next()) {
+        //     std::string sender = res->getString("sender");
+        //     std::string content = res->getString("content");
+        //     std::string time = res->getString("time");
+        //     id = res->getInt("id");
+        //     prepStmt0To1->setInt(1, id);
+        //     sql::ResultSet *res0To1 = prepStmt0To1->executeQuery();
+        //     Json::Value item;
+        //     item["content"] = content;
+        //     item["time"] = time;
+        //     grouped[sender].push_back(item);
+        // }
+
+        // for (auto &[sender, items] : grouped) {
+        //     Json::Value arr;
+        //     for (auto &item : items) {
+        //         arr.append(item);
+        //     }
+        //     Json::Value obj;
+        //     obj[sender] = arr;
+        //     result.append(obj);
+        // }
         Json::Value result;
-        std::map<std::string, std::vector<Json::Value>> grouped;
+Json::Value messages;
 
-        while (res->next()) {
-            std::string sender = res->getString("sender");
-            std::string content = res->getString("content");
-            std::string time = res->getString("time");
-            id = res->getInt("id");
-            prepStmt0To1->setInt(1, id);
-            sql::ResultSet *res0To1 = prepStmt0To1->executeQuery();
+while (res->next()) {
 
-            Json::Value item;
-            item["content"] = content;
-            item["time"] = time;
+  std::string content = res->getString("content");
+  std::string time = res->getString("time");
+  std::string sender = res->getString("sender");
 
-            grouped[sender].push_back(item);
-        }
+  Json::Value item;
+  item["content"] = content; 
+  item["time"] = time;
+  item["sender"] = sender;
 
-        for (auto &[sender, items] : grouped) {
-            Json::Value arr;
-            for (auto &item : items) {
-                arr.append(item);
-            }
-            Json::Value obj;
-            obj[sender] = arr;
-            result.append(obj);
-        }
+  messages.append(item);
+}
+
+result[who_send_me] = messages;
         delete res;
         delete prepStmt;
         delete con;
