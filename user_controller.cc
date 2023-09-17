@@ -31,7 +31,7 @@ std::string registerUser(const Json::Value& req_json) {
     // std::cout<<"Receive Username : "<<req_json["username"].asString()<<std::endl;
     // std::cout<<"Receive Passwd: "<<req_json["password"].asString()<<std::endl;
     if (sql_check(req_json["username"].asString())){
-        sql_add(req_json["username"].asString(), req_json["password"].asString());
+        sql_add(req_json["username"].asString(), req_json["password"].asString(), req_json["avatar"].asInt());
         return "Sign up Success";
     }else
         return "User already exist";
