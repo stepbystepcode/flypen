@@ -48,7 +48,7 @@ void sql_addhistory(std::string sender, std::string receiver, std::string messag
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-void sql_add(std::string username, std::string passwd) {
+void sql_add(std::string username, std::string passwd, int avatar) {
     try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
@@ -59,10 +59,11 @@ void sql_add(std::string username, std::string passwd) {
         con->setSchema("flypen");
         sql::Statement *tool;
         tool = con->createStatement();
-        std::string classmysql = "INSERT INTO users(username, password, createtime) VALUES (?, ?, NOW())";
+        std::string classmysql = "INSERT INTO users(username, password, avatar, createtime) VALUES (?, ?, ?, NOW())";
         sql::PreparedStatement *ptool = con->prepareStatement(classmysql);
         ptool->setString(1, username);
         ptool->setString(2, passwd);
+        ptool->setInt(3, avatar);   // 
         ptool->executeUpdate();
         delete ptool;
         delete tool;
@@ -132,12 +133,14 @@ bool sql_check(std::string user, std::string passwd) {
             std::string username = res->getString("username");
             std::string password = res->getString("password");
             int createtime = res->getInt("createtime");
+            int avatar = res->getInt("avatar");
             if ((passwd != password) && (passwd != "@DEFAULT@"))
                 result = false;
             // 在这里输出或使用提取的值
             // std::cout << "SQL: Username: " << username << std::endl;
             // std::cout << "SQL: Password: " << password << std::endl;
             // std::cout << "SQL: CreateTime: " << createtime << std::endl;
+            std::cout << "SQL: Avatar: " << avatar << std::endl;
         }
 
         delete res;
