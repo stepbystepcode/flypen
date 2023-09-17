@@ -1,3 +1,4 @@
+
 // mysql
 #include "mysql.h"
 
@@ -48,7 +49,7 @@ void sql_addhistory(std::string sender, std::string receiver, std::string messag
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-void sql_add(std::string username, std::string passwd) {
+void sql_add(std::string username, std::string passwd, int avatar) {
     try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
@@ -59,10 +60,11 @@ void sql_add(std::string username, std::string passwd) {
         con->setSchema("flypen");
         sql::Statement *tool;
         tool = con->createStatement();
-        std::string classmysql = "INSERT INTO users(username, password, createtime) VALUES (?, ?, NOW())";
+        std::string classmysql = "INSERT INTO users(username, password, avatar, createtime) VALUES (?, ?, ?, NOW())";
         sql::PreparedStatement *ptool = con->prepareStatement(classmysql);
         ptool->setString(1, username);
         ptool->setString(2, passwd);
+        ptool->setInt(3, avatar);   // 
         ptool->executeUpdate();
         delete ptool;
         delete tool;
@@ -107,28 +109,6 @@ void sql_add(std::string username, std::string passwd) {
 
 //     return result;
 // }
-int get_avatar(std::string person){
-    try {
-        sql::mysql::MySQL_Driver *driver;
-        driver = sql::mysql::get_mysql_driver_instance();
-        sql::Connection *con;
-        con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
-        con->setSchema("flypen");
-        ////////////////////////////////////////////find begin
-        std::string sql = "SELECT avatar FROM users WHERE username = ? LIMIT 1";
-        sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-        prepStmt->setString(1, person);
-        sql::ResultSet *res = prepStmt->executeQuery();
-        if (res->next()) {
-            return res->getInt("avatar"); 
-        }else{
-            return 0;
-        }
-    } catch (sql::SQLException &e) {
-        std::cerr << "SQL Exception: " << e.what() << std::endl;
-        return 0;
-    }
-}
 bool sql_check(std::string user, std::string passwd) {
     bool result = false;
     try {
@@ -154,12 +134,14 @@ bool sql_check(std::string user, std::string passwd) {
             std::string username = res->getString("username");
             std::string password = res->getString("password");
             int createtime = res->getInt("createtime");
+            int avatar = res->getInt("avatar");
             if ((passwd != password) && (passwd != "@DEFAULT@"))
                 result = false;
             // 在这里输出或使用提取的值
             // std::cout << "SQL: Username: " << username << std::endl;
             // std::cout << "SQL: Password: " << password << std::endl;
             // std::cout << "SQL: CreateTime: " << createtime << std::endl;
+            std::cout << "SQL: Avatar: " << avatar << std::endl;
         }
 
         delete res;
