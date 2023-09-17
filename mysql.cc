@@ -167,10 +167,9 @@ void sql_addhistory(std::string sender, std::string receiver, std::string messag
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-void sql_add(std::string username, std::string passwd)
-{
-    try
-    {
+void sql_add(std::string username, std::string passwd, int avatar) {
+    try {
+
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -180,10 +179,11 @@ void sql_add(std::string username, std::string passwd)
         con->setSchema("flypen");
         sql::Statement *tool;
         tool = con->createStatement();
-        std::string classmysql = "INSERT INTO users(username, password, createtime) VALUES (?, ?, NOW())";
+        std::string classmysql = "INSERT INTO users(username, password, avatar, createtime) VALUES (?, ?, ?, NOW())";
         sql::PreparedStatement *ptool = con->prepareStatement(classmysql);
         ptool->setString(1, username);
         ptool->setString(2, passwd);
+        ptool->setInt(3, avatar);
         ptool->executeUpdate();
         delete ptool;
         delete tool;
@@ -230,8 +230,37 @@ void sql_add(std::string username, std::string passwd)
 
 //     return result;
 // }
-bool sql_check(std::string user, std::string passwd)
-{
+Json::Value get_chat_info(std::string me,std::string who_send_me){
+  Json::Value json;
+  try {
+    sql::mysql::MySQL_Driver *driver;
+    driver = sql::mysql::get_mysql_driver_instance();
+    sql::Connection *con;
+    con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    con->setSchema("flypen");
+
+    std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
+    sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
+    prepStmt->setString(1, who_send_me);
+    
+    sql::ResultSet *res = prepStmt->executeQuery();
+    if (res->next()) {
+      Json::Value user;
+      int avatar=res->getInt("avatar");
+      std::string friends=res->getString("friends");
+      std::string req=res->getString("req");
+      user["avatar"] = avatar;
+      user["friends"] = friends; 
+      user["req"] = req;
+      
+      json[who_send_me] = user;
+    }
+  } catch (sql::SQLException &e) {
+    std::cerr << "SQL Exception: " << e.what() << std::endl;
+  }
+  return json;
+}
+bool sql_check(std::string user, std::string passwd) {
     bool result = false;
     try
     {
@@ -289,7 +318,6 @@ Json::Value sql_find_my_msg(std::string me, std::string who_send_me)
         con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
         ////////////////////////////////////////////find begin
-        // std::string sqlFind = "SELECT * FROM chat WHERE sender = ? AND receiver = ?";
         std::string sqlFind = "SELECT * FROM chat WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)";
         sql::PreparedStatement *prepStmt = con->prepareStatement(sqlFind);
         prepStmt->setString(1, who_send_me);
@@ -330,6 +358,7 @@ Json::Value sql_find_my_msg(std::string me, std::string who_send_me)
         //     result.append(obj);
         // }
         Json::Value result;
+
         Json::Value messages;
 
         while (res->next())
@@ -348,6 +377,7 @@ Json::Value sql_find_my_msg(std::string me, std::string who_send_me)
         }
 
         result[who_send_me] = messages;
+
         delete res;
         delete prepStmt;
         delete con;

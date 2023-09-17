@@ -90,6 +90,7 @@ void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &
     res->setBody(output);
     callback(res);
 }
+
 void friend_request(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     std::string authHeader = req->getHeader("Authorization");
@@ -135,5 +136,37 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
     }
     auto res = HttpResponse::newHttpResponse();
     res->setBody("Success");
+
+void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+    auto body = req->getBody();
+    Json::Value req_json, res_json;
+    Json::Reader reader;
+    std::string bodyStr(body);
+    if (!reader.parse(bodyStr, req_json)) {
+        callback(HttpResponse::newHttpResponse());
+        return;
+    }
+    std::string me, who_send_me;
+    Json::FastWriter writer;
+    std::string authHeader = req->getHeader("Authorization");
+    if (authHeader.substr(0, 7) == "Bearer ") {
+        std::string bearerToken = authHeader.substr(7);
+        // 在此处使用Bearer Token进行身份验证
+        try {
+            me = jwtDecrypt(bearerToken);
+        } catch (const std::exception &e) {
+            std::cerr << e.what() << '\n';
+            std::cout << "Wrong token" << std::endl;
+        }
+    } else {
+        // 连接没有Authorization头部Bearer Token
+        std::cout << "No Authorization" << std::endl;
+    }
+
+    auto res = HttpResponse::newHttpResponse();
+    res->addHeader("Access-Control-Allow-Origin", "*");
+    who_send_me = req_json["person"].asString();
+    auto output = writer.write(get_chat_info(me,who_send_me));
+    res->setBody(output);
     callback(res);
 }
