@@ -107,6 +107,28 @@ void sql_add(std::string username, std::string passwd) {
 
 //     return result;
 // }
+int get_avatar(std::string person){
+    try {
+        sql::mysql::MySQL_Driver *driver;
+        driver = sql::mysql::get_mysql_driver_instance();
+        sql::Connection *con;
+        con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        con->setSchema("flypen");
+        ////////////////////////////////////////////find begin
+        std::string sql = "SELECT avatar FROM users WHERE username = ? LIMIT 1";
+        sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
+        prepStmt->setString(1, person);
+        sql::ResultSet *res = prepStmt->executeQuery();
+        if (res->next()) {
+            return res->getInt("avatar"); 
+        }else{
+            return 0;
+        }
+    } catch (sql::SQLException &e) {
+        std::cerr << "SQL Exception: " << e.what() << std::endl;
+        return 0;
+    }
+}
 bool sql_check(std::string user, std::string passwd) {
     bool result = false;
     try {
