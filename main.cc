@@ -1,3 +1,4 @@
+
 #include <drogon/drogon.h>
 #include "msg_controller.h"
 #include "user_controller.h"
@@ -25,6 +26,10 @@ int main() {
     drogon::app().registerHandler("/api/newfriends", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         friend_request(req, std::move(callback));
     });
+      drogon::app().registerHandler("/api/info", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+        info(req, std::move(callback));
+    });
     drogon::app().run();
     return 0;
 }
+
