@@ -3,6 +3,6 @@
  cd build
  cmake ..
  make clean 
- make -j 8
+ make -j16
  ./flypen
  cd ..
