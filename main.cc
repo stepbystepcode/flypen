@@ -19,6 +19,10 @@ int main() {
     drogon::app().registerHandler("/api/check", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         check(req, std::move(callback));
     });
+    drogon::app().registerHandler("/api/info", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+        info(req, std::move(callback));
+    });
     drogon::app().run();
     return 0;
 }
+
