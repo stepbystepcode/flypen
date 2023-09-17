@@ -17,9 +17,10 @@ void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr 
     Json::FastWriter writer;
     std::string msg = handler(req_json);
     res_json["msg"] = msg;
-    if (msg=="Login Success")
+    if (msg=="Login Success"){
         res_json["token"] = jwtGen(req_json);
-    else
+        res_json["username"] = req_json["username"].asString();
+    }else
         res_json["token"] = "";
     auto output = writer.write(res_json);
     auto res = HttpResponse::newHttpResponse();
