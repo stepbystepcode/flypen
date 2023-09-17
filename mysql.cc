@@ -48,7 +48,7 @@ void sql_addhistory(std::string sender, std::string receiver, std::string messag
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-void sql_add(std::string username, std::string passwd) {
+    void sql_add(std::string username, std::string passwd, int avatar) {
     try {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
@@ -59,10 +59,11 @@ void sql_add(std::string username, std::string passwd) {
         con->setSchema("flypen");
         sql::Statement *tool;
         tool = con->createStatement();
-        std::string classmysql = "INSERT INTO users(username, password, createtime) VALUES (?, ?, NOW())";
+        std::string classmysql = "INSERT INTO users(username, password, avatar, createtime) VALUES (?, ?, ?, NOW())";
         sql::PreparedStatement *ptool = con->prepareStatement(classmysql);
         ptool->setString(1, username);
         ptool->setString(2, passwd);
+        ptool->setInt(3, avatar);
         ptool->executeUpdate();
         delete ptool;
         delete tool;
