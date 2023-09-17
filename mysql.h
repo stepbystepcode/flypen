@@ -12,5 +12,6 @@ void sql_addrequest(std::string send,std::string receiver);
 void sql_process_request(std::string ,std::string,std::string);
 Json::Value sql_find_my_msg(std::string,std::string);
 Json::Value get_chat_info(std::string,std::string);
+Json::Value get_chat_info(std::string);
 //bool sql_check(std::string );
 #endif

@@ -136,7 +136,7 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
     }
     auto res = HttpResponse::newHttpResponse();
     res->setBody("Success");
-
+}
 void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
     auto body = req->getBody();
     Json::Value req_json, res_json;
@@ -165,8 +165,12 @@ void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
 
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
-    who_send_me = req_json["person"].asString();
-    auto output = writer.write(get_chat_info(me,who_send_me));
-    res->setBody(output);
-    callback(res);
+    if(req_json["person"].asString()==""){
+        res->setBody(writer.write(get_chat_info(me)));
+        callback(res);
+    }else{
+        who_send_me = req_json["person"].asString();
+        res->setBody(writer.write(get_chat_info(me,who_send_me)));
+        callback(res);
+    }
 }
