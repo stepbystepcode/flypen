@@ -103,7 +103,7 @@ void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
     who_send_me = req_json["person"].asString();
-    auto output = writer.write(get_avatar(who_send_me));
+    auto output = writer.write(get_chat_info(me,who_send_me));
     res->setBody(output);
     callback(res);
 }

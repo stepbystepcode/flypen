@@ -107,27 +107,35 @@ void sql_add(std::string username, std::string passwd) {
 
 //     return result;
 // }
-int get_avatar(std::string person){
-    try {
-        sql::mysql::MySQL_Driver *driver;
-        driver = sql::mysql::get_mysql_driver_instance();
-        sql::Connection *con;
-        con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
-        con->setSchema("flypen");
-        ////////////////////////////////////////////find begin
-        std::string sql = "SELECT avatar FROM users WHERE username = ? LIMIT 1";
-        sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-        prepStmt->setString(1, person);
-        sql::ResultSet *res = prepStmt->executeQuery();
-        if (res->next()) {
-            return res->getInt("avatar"); 
-        }else{
-            return 0;
-        }
-    } catch (sql::SQLException &e) {
-        std::cerr << "SQL Exception: " << e.what() << std::endl;
-        return 0;
+Json::Value get_chat_info(std::string me,std::string who_send_me){
+  Json::Value json;
+  try {
+    sql::mysql::MySQL_Driver *driver;
+    driver = sql::mysql::get_mysql_driver_instance();
+    sql::Connection *con;
+    con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    con->setSchema("flypen");
+
+    std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
+    sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
+    prepStmt->setString(1, who_send_me);
+    
+    sql::ResultSet *res = prepStmt->executeQuery();
+    if (res->next()) {
+      Json::Value user;
+      int avatar=res->getInt("avatar");
+      std::string friends=res->getString("friends");
+      std::string req=res->getString("req");
+      user["avatar"] = avatar;
+      user["friends"] = friends; 
+      user["req"] = req;
+      
+      json[who_send_me] = user;
     }
+  } catch (sql::SQLException &e) {
+    std::cerr << "SQL Exception: " << e.what() << std::endl;
+  }
+  return json;
 }
 bool sql_check(std::string user, std::string passwd) {
     bool result = false;
