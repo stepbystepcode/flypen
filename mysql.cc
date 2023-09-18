@@ -7,7 +7,8 @@
 #include "jdbc/mysql_driver.h"
 #include "json/json.h"
 
-void sql_process_request(std::string sender, std::string receiver, std::string attitude) {
+void sql_process_request(std::string sender, std::string receiver, std::string attitude)
+{
     std::vector<std::string> usernamelist;
     sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
@@ -39,7 +40,8 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
     updateStatement->setString(2, receiver);
     updateStatement->execute();
 
-    if (attitude == "allow") {
+    if (attitude == "allow")
+    {
         std::string readdata = "SELECT friends FROM users WHERE username = ?";
         sql::PreparedStatement *Rreaddatament = con->prepareStatement(readdata);
         sql::PreparedStatement *Sreaddatament = con->prepareStatement(readdata);
@@ -61,23 +63,29 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
         sql::PreparedStatement *updateR = con->prepareStatement(updateQuery);
         sql::PreparedStatement *updateS = con->prepareStatement(updateQuery);
 
-        if (Rfriendslist != "") {
+        if (Rfriendslist != "")
+        {
             Rfriendslist += "," + sender;
             updateR->setString(1, Rfriendslist);
             updateR->setString(2, receiver);
             updateR->execute();
-        } else {
+        }
+        else
+        {
             updateR->setString(1, sender);
             updateR->setString(2, receiver);
             updateR->execute();
         }
 
-        if (Sfriendslist != "") {
+        if (Sfriendslist != "")
+        {
             Sfriendslist += "," + receiver;
             updateS->setString(1, Sfriendslist);
             updateS->setString(2, sender);
             updateS->execute();
-        } else {
+        }
+        else
+        {
             updateS->setString(1, receiver);
             updateS->setString(2, sender);
             updateS->execute();
@@ -87,7 +95,8 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
     return;
 }
 
-void sql_addrequest(std::string sender, std::string receiver) {
+void sql_addrequest(std::string sender, std::string receiver)
+{
     std::vector<std::string> usernamelist;
     sql::mysql::MySQL_Driver *driver;
     driver = sql::mysql::get_mysql_driver_instance();
@@ -100,13 +109,16 @@ void sql_addrequest(std::string sender, std::string receiver) {
     sql::PreparedStatement *readdatament = con->prepareStatement(readdata);
     readdatament->setString(1, receiver);
     sql::ResultSet *resultSet = readdatament->executeQuery();
-    if (resultSet->next()) {
+    if (resultSet->next())
+    {
         std::string req = resultSet->getString("req");
         size_t pos = req.find(sender);
-        if (pos != std::string::npos) return;
+        if (pos != std::string::npos)
+            return;
         std::string updateQuery = "UPDATE users SET req = ? WHERE username = ?";
         sql::PreparedStatement *updateStatement = con->prepareStatement(updateQuery);
-        if (req != "") {
+        if (req != "")
+        {
             req += "," + sender;
             updateStatement->setString(1, req);
             updateStatement->setString(2, receiver);
@@ -119,8 +131,10 @@ void sql_addrequest(std::string sender, std::string receiver) {
     }
 }
 
-void sql_addconnect(std::string connectptr) {
-    try {
+void sql_addconnect(std::string connectptr)
+{
+    try
+    {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -134,13 +148,17 @@ void sql_addconnect(std::string connectptr) {
         delete insertconnect;
         // delete tool;
         delete con;
-    } catch (sql::SQLException &e) {
+    }
+    catch (sql::SQLException &e)
+    {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
 
-void sql_addhistory(std::string sender, std::string receiver, std::string message, std::string isread) {
-    try {
+void sql_addhistory(std::string sender, std::string receiver, std::string message, std::string isread)
+{
+    try
+    {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -158,13 +176,17 @@ void sql_addhistory(std::string sender, std::string receiver, std::string messag
         delete insertdata;
         // delete tool;
         delete con;
-    } catch (sql::SQLException &e) {
+    }
+    catch (sql::SQLException &e)
+    {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
 
-void sql_add(std::string username, std::string passwd, int avatar) {
-    try {
+void sql_add(std::string username, std::string passwd, int avatar)
+{
+    try
+    {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -183,7 +205,9 @@ void sql_add(std::string username, std::string passwd, int avatar) {
         delete ptool;
         delete tool;
         delete con;
-    } catch (sql::SQLException &e) {
+    }
+    catch (sql::SQLException &e)
+    {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
@@ -225,26 +249,31 @@ void sql_add(std::string username, std::string passwd, int avatar) {
 //     return result;
 // }
 
-Json::Value get_chat_info(std::string me, std::string who_send_me) {
+Json::Value get_chat_info(std::string me, std::string who_send_me)
+{
     Json::Value json;
     std::string send[2] = {me, who_send_me};
 
-    try {
+    try
+    {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
         con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
 
-        for (int i = 0; i < 2; i++) {
-            if (!send[i].empty()) {
+        for (int i = 0; i < 2; i++)
+        {
+            if (!send[i].empty())
+            {
                 std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
                 sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
                 prepStmt->setString(1, send[i]);
 
                 sql::ResultSet *res = prepStmt->executeQuery();
 
-                if (res->next()) {
+                if (res->next())
+                {
                     Json::Value user;
                     int avatar = res->getInt("avatar");
                     std::string friends = res->getString("friends");
@@ -254,7 +283,8 @@ Json::Value get_chat_info(std::string me, std::string who_send_me) {
                     std::stringstream sf(friends);
                     std::stringstream sr(req);
                     std::string token;
-                    while (std::getline(sf, token, ',')) {
+                    while (std::getline(sf, token, ','))
+                    {
                         Json::Value afriend;
                         afriend["username"] = token;
                         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
@@ -262,10 +292,11 @@ Json::Value get_chat_info(std::string me, std::string who_send_me) {
                         prepStmt->setString(1, token);
                         sql::ResultSet *res = prepStmt->executeQuery();
                         if (res->next())
-                            afriend["avatar"] = res->getInt("avatar");  // 假设avatar统一为4
+                            afriend["avatar"] = res->getInt("avatar"); // 假设avatar统一为4
                         friends_array.append(afriend);
                     }
-                    while (std::getline(sr, token, ',')) {
+                    while (std::getline(sr, token, ','))
+                    {
                         Json::Value areq;
                         areq["username"] = token;
                         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
@@ -273,7 +304,7 @@ Json::Value get_chat_info(std::string me, std::string who_send_me) {
                         prepStmt->setString(1, token);
                         sql::ResultSet *res = prepStmt->executeQuery();
                         if (res->next())
-                            areq["avatar"] = res->getInt("avatar");  // 假设avatar统一为4
+                            areq["avatar"] = res->getInt("avatar"); // 假设avatar统一为4
                         req_array.append(areq);
                     }
                     user["avatar"] = avatar;
@@ -287,16 +318,20 @@ Json::Value get_chat_info(std::string me, std::string who_send_me) {
                 }
             }
         }
-    } catch (sql::SQLException &e) {
+    }
+    catch (sql::SQLException &e)
+    {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 
     return json;
 }
 
-bool sql_check(std::string user, std::string passwd) {
+bool sql_check(std::string user, std::string passwd)
+{
     bool result = false;
-    try {
+    try
+    {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
@@ -312,7 +347,8 @@ bool sql_check(std::string user, std::string passwd) {
 
         // 获取查询结果
         // (¬A ∧B) ∨ (A ∧¬B)
-        if (((passwd != "@DEFAULT@") && (res->next())) || ((passwd == "@DEFAULT@") && (!(res->next())))) {
+        if (((passwd != "@DEFAULT@") && (res->next())) || ((passwd == "@DEFAULT@") && (!(res->next()))))
+        {
             result = true;
             // std::cout << "in" << std::endl;
             // 提取所有列的值
@@ -330,7 +366,9 @@ bool sql_check(std::string user, std::string passwd) {
         delete res;
         delete prepStmt;
         delete con;
-    } catch (sql::SQLException &e) {
+    }
+    catch (sql::SQLException &e)
+    {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
     std::cout << result << std::endl;
@@ -338,78 +376,62 @@ bool sql_check(std::string user, std::string passwd) {
     return result;
 }
 
-Json::Value sql_find_my_msg(std::string me, std::string who_send_me) {
-    // std::cout << "login user: " << user << std::endl;
-    try {
+Json::Value sql_find_my_msg(std::string me)
+{
+    std::cout << "login user: " << me << std::endl;
+    try
+    {
         sql::mysql::MySQL_Driver *driver;
         driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
         con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
         ////////////////////////////////////////////find begin
-        std::string sqlFind = "SELECT * FROM chat WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)";
+        std::string sqlFind = "SELECT * FROM chat WHERE sender = ? OR receiver = ?";
         sql::PreparedStatement *prepStmt = con->prepareStatement(sqlFind);
-        prepStmt->setString(1, who_send_me);
+        prepStmt->setString(1, me);
         prepStmt->setString(2, me);
-        prepStmt->setString(3, me);
-        prepStmt->setString(4, who_send_me);
-        std::cout << "sender: " << who_send_me << std::endl;
-        std::cout << "receiver: " << me << std::endl;
         sql::ResultSet *res = prepStmt->executeQuery();
         ////////////////////////////////////////////find end and  update begin
         std::string sql0To1 = "UPDATE chat SET isread = 1 WHERE id = ?";
-        sql::PreparedStatement *prepStmt0To1 = con->prepareStatement(sql0To1);
+        // sql::PreparedStatement *prepStmt0To1 = con->prepareStatement(sql0To1);
         int id;
         ///////////////////////////////////////////update end
-        // Json::Value result;
-        // std::map<std::string, std::vector<Json::Value>> grouped;
 
-        // while (res->next()) {
-        //     std::string sender = res->getString("sender");
-        //     std::string content = res->getString("content");
-        //     std::string time = res->getString("time");
-        //     id = res->getInt("id");
-        //     prepStmt0To1->setInt(1, id);
-        //     sql::ResultSet *res0To1 = prepStmt0To1->executeQuery();
-        //     Json::Value item;
-        //     item["content"] = content;
-        //     item["time"] = time;
-        //     grouped[sender].push_back(item);
-        // }
-
-        // for (auto &[sender, items] : grouped) {
-        //     Json::Value arr;
-        //     for (auto &item : items) {
-        //         arr.append(item);
-        //     }
-        //     Json::Value obj;
-        //     obj[sender] = arr;
-        //     result.append(obj);
-        // }
         Json::Value result;
-
-        Json::Value messages;
-
-        while (res->next()) {
-            std::string content = res->getString("content");
-            std::string time = res->getString("time");
-            std::string sender = res->getString("sender");
-
+        std::string sender;
+        std::string receiver;
+        std::map<std::string, Json::Value> sender_messages;
+        while (res->next())
+        {
             Json::Value item;
-            item["content"] = content;
-            item["time"] = time;
-            item["sender"] = sender;
-
-            messages.append(item);
+            sender = res->getString("sender");
+            receiver = res->getString("receiver");
+            if (sender == me || receiver == me)
+            {
+                std::string key = (sender == me) ? receiver : sender;
+                Json::Value &messages = sender_messages[key];
+                std::string content = res->getString("content");
+                std::string time = res->getString("time");
+                sender = res->getString("sender");
+                item["content"] = content;
+                item["time"] = time;
+                item["sender"] = sender;
+                item["receiver"] = receiver;
+                // 构造item
+                messages.append(item);
+            }
         }
-
-        result[who_send_me] = messages;
+        for (auto &x : sender_messages)
+            result[x.first] = x.second;
 
         delete res;
         delete prepStmt;
         delete con;
         return result;
-    } catch (sql::SQLException &e) {
+    }
+    catch (sql::SQLException &e)
+    {
         std::cerr << "SQL Exception: " << e.what() << std::endl;
         return "error";
     }
