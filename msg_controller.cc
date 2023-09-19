@@ -131,6 +131,7 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
     }
     auto res = HttpResponse::newHttpResponse();
     res->setBody("Success");
+    callback(res);
 }
 void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {

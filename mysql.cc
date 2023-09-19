@@ -62,7 +62,7 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
     std::string readdata = "SELECT req FROM users WHERE username = ?";
     sql::PreparedStatement *readdatament = con->prepareStatement(readdata);
 
-    readdatament->setString(1, sender);
+    readdatament->setString(1, receiver);
 
     sql::ResultSet *resultSet = readdatament->executeQuery();
     std::string req;
