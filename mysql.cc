@@ -3,7 +3,7 @@
 #include "jdbc/mysql_connection.h"
 #include "jdbc/mysql_driver.h"
 #include "json/json.h"
-
+//relate to chat
 void sql_delete_operation(std::string sender, std::string receiver)
 {
     std::vector<std::string> usernamelist;
@@ -127,7 +127,6 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
     delete con;
     return;
 }
-
 void sql_addrequest(std::string sender, std::string receiver)
 {
     std::vector<std::string> usernamelist;
@@ -175,7 +174,6 @@ void sql_addrequest(std::string sender, std::string receiver)
     delete tool;
     delete con;
 }
-
 void sql_addconnect(std::string connectptr)
 {
     try
@@ -196,7 +194,6 @@ void sql_addconnect(std::string connectptr)
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-
 void sql_addhistory(std::string sender, std::string receiver, std::string message, std::string isread)
 {
     try
@@ -222,7 +219,7 @@ void sql_addhistory(std::string sender, std::string receiver, std::string messag
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-
+//relate to user
 void sql_add(std::string username, std::string passwd, int avatar)
 {
     try
@@ -249,7 +246,6 @@ void sql_add(std::string username, std::string passwd, int avatar)
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
-
 Json::Value get_chat_info(std::string me, std::string who_send_me)
 {
     Json::Value json;
@@ -335,7 +331,6 @@ Json::Value get_chat_info(std::string me, std::string who_send_me)
 
     return json;
 }
-
 /*
 Json::Value get_chat_info(std::string me, std::string who_send_me)
 {
@@ -417,7 +412,6 @@ Json::Value get_chat_info(std::string me, std::string who_send_me)
     return json;
 }
 */
-
 bool sql_check(std::string user, std::string passwd)
 {
     bool result = false;
@@ -460,7 +454,6 @@ bool sql_check(std::string user, std::string passwd)
     std::cout << result << std::endl;
     return result;
 }
-
 Json::Value sql_find_my_msg(std::string me)
 {
     std::cout << "login user: " << me << std::endl;
