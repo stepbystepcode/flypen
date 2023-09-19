@@ -19,11 +19,6 @@ std::string jwtGen(const Json::Value& req_json)
     .sign(jwt::algorithm::hs256{"secret"});
     return std::string(token);
 }
-// std::string jwtDecode(const std::string& token)
-// {
-//     auto decoded_token = jwt::decode(token);
-//     return decoded_token.get_payload_claim("name").as_string();
-// }
 
 std::string jwtDecrypt(const std::string& token)
 {
@@ -39,6 +34,7 @@ std::string jwtDecrypt(const std::string& token)
         throw std::runtime_error("Failed to decrypt JWT");
     }
 }
+
 bool jwtVerify(const std::__1::shared_ptr<drogon::HttpRequest> &req){
     std::string authHeader = req->getHeader("Authorization");
     if (authHeader.substr(0, 7) == "Bearer ") {
