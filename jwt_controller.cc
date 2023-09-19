@@ -35,7 +35,7 @@ std::string jwtDecrypt(const std::string& token)
     }
 }
 
-bool jwtVerify(const std::__1::shared_ptr<drogon::HttpRequest> &req){
+bool jwtVerify(const drogon::HttpRequestPtr &req){
     std::string authHeader = req->getHeader("Authorization");
     if (authHeader.substr(0, 7) == "Bearer ") {
         std::string bearerToken = authHeader.substr(7);
