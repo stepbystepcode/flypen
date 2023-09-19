@@ -83,7 +83,7 @@ void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &
     callback(res);
 }
 
-void friend_request(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     std::string authHeader = req->getHeader("Authorization");
     if (authHeader.substr(0, 7) == "Bearer ")
@@ -94,7 +94,10 @@ void friend_request(const HttpRequestPtr &req, std::function<void(const HttpResp
         {
             std::string sender = jwtDecrypt(bearerToken);
             std::string receiver = req->getParameter("username");
+            std::string operation = req->getParameter("operation");
+            if(operation=="add")
             sql_addrequest(sender, receiver);
+            else sql_delete_operation(sender,receiver);
         }
         catch (const std::exception &e)
         {
@@ -116,9 +119,9 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
         try
         {
             std::string receiver = jwtDecrypt(bearerToken);
-            std::string sender =req->getParameter("username");
+            std::string sender = req->getParameter("username");
             std::string attitude = req->getParameter("info");
-            sql_process_request(sender,receiver, attitude);
+            sql_process_request(sender, receiver, attitude);
         }
         catch (const std::exception &e)
         {
@@ -128,41 +131,53 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
     }
     auto res = HttpResponse::newHttpResponse();
     res->setBody("Success");
+    callback(res);
 }
-void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
     auto body = req->getBody();
     Json::Value req_json, res_json;
     Json::Reader reader;
     std::string bodyStr(body);
-    if (!reader.parse(bodyStr, req_json)) {
+    if (!reader.parse(bodyStr, req_json))
+    {
         callback(HttpResponse::newHttpResponse());
         return;
     }
     std::string me, who_send_me;
     Json::FastWriter writer;
     std::string authHeader = req->getHeader("Authorization");
-    if (authHeader.substr(0, 7) == "Bearer ") {
+    if (authHeader.substr(0, 7) == "Bearer ")
+    {
         std::string bearerToken = authHeader.substr(7);
         // 在此处使用Bearer Token进行身份验证
-        try {
+        try
+        {
             me = jwtDecrypt(bearerToken);
-        } catch (const std::exception &e) {
+        }
+        catch (const std::exception &e)
+        {
             std::cerr << e.what() << '\n';
             std::cout << "Wrong token" << std::endl;
         }
-    } else {
+    }
+    else
+    {
         // 连接没有Authorization头部Bearer Token
         std::cout << "No Authorization" << std::endl;
     }
 
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
-    if(req_json["person"].asString()==""){
-        res->setBody(writer.write(get_chat_info(me,"")));
+    if (req_json["person"].asString() == "")
+    {
+        res->setBody(writer.write(get_chat_info(me, "")));
         callback(res);
-    }else{
+    }
+    else
+    {
         who_send_me = req_json["person"].asString();
-        res->setBody(writer.write(get_chat_info(me,who_send_me)));
+        res->setBody(writer.write(get_chat_info(me, who_send_me)));
         callback(res);
     }
 }
