@@ -7,6 +7,6 @@
 
 std::string jwtGen(const Json::Value& req_json);
 std::string jwtDecrypt(const std::string& token);
-bool jwtVerify(const std::__1::shared_ptr<drogon::HttpRequest> &req);
+bool jwtVerify(const drogon::HttpRequestPtr &req);
 
 #endif
