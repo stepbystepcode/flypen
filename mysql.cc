@@ -1,9 +1,6 @@
-// mysql
 #include "mysql.h"
-
-#include <jdbc/cppconn/prepared_statement.h>
-#include <jdbc/mysql_connection.h>
-
+#include "jdbc/cppconn/prepared_statement.h"
+#include "jdbc/mysql_connection.h"
 #include "jdbc/mysql_driver.h"
 #include "json/json.h"
 
@@ -61,8 +58,8 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
 
     std::string readData = "SELECT req FROM users WHERE username = ?";
     sql::PreparedStatement *readDatament = con->prepareStatement(readData);
-    readdatament->setString(1, receiver);
-    sql::ResultSet *resultSet = readdatament->executeQuery();
+    readDatament->setString(1, receiver);
+    sql::ResultSet *resultSet = readDatament->executeQuery();
 
     std::string req;
     if (resultSet->next())
@@ -122,7 +119,7 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
             update->execute();
             delete update;
         }
-        delete RS;
+        delete[] RS;
     }
     delete updateStatement;
     delete resultSet;
