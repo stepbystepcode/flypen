@@ -2,6 +2,7 @@
 #include <drogon/drogon.h>
 #include "msg_controller.h"
 #include "user_controller.h"
+#include "file_controller.h"
 #include <drogon/WebSocketController.h>
 using namespace drogon;
 std::unordered_map<std::string, WebSocketConnectionPtr> clientTable;
@@ -28,6 +29,9 @@ int main() {
     });
       drogon::app().registerHandler("/api/info", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         info(req, std::move(callback));
+    });
+    drogon::app().registerHandler("/api/file/tree", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+        genTree(req, std::move(callback));
     });
     drogon::app().run();
     return 0;
