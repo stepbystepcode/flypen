@@ -440,6 +440,7 @@ bool sql_check(std::string user, std::string passwd)
     return result;
 }
 Json::Value sql_find_my_msg(std::string me)
+
 {
     std::cout << "login user: " << me << std::endl;
     try
@@ -507,4 +508,15 @@ Json::Value sql_find_my_msg(std::string me)
         std::cerr << "SQL Exception: " << e.what() << std::endl;
         return "error";
     }
+}
+void set_avatar(std::string person, int avatar)
+{
+    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
+    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    con->setSchema("flypen");
+    std::string update_sql = "UPDATE users SET avatar = ? WHERE username = ?";
+    sql::PreparedStatement *updateStatement = con->prepareStatement(update_sql);
+    updateStatement->setInt(1, avatar);
+    updateStatement->setString(2, person);
+    updateStatement->execute();
 }

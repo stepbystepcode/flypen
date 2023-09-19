@@ -17,11 +17,10 @@ void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr 
     Json::FastWriter writer;
     std::string msg = handler(req_json);
     res_json["msg"] = msg;
-    if (msg=="Login Success"){
+    if (msg.find("Success")!= std::string::npos){
         res_json["token"] = jwtGen(req_json);
         res_json["username"] = req_json["username"].asString();
-    }else
-        res_json["token"] = "";
+    }
     auto output = writer.write(res_json);
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
@@ -42,4 +41,16 @@ std::string loginUser(const Json::Value& req_json) {
         return "Login Success";
     }else
         return "Login Failed";
+}
+void avatar(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+    auto res = HttpResponse::newHttpResponse();
+    res->addHeader("Access-Control-Allow-Origin", "*");
+    if (jwtVerify(req)) {
+        std::string receiver = jwtDecrypt(req->getHeader("Authorization").substr(7));
+        set_avatar(receiver, stoi(req->getParameter("avatar")));
+        res->setBody("Success");
+    } else {
+        res->setBody("No Authorization");
+    }
+    callback(res);
 }
