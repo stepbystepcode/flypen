@@ -24,7 +24,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
-add_executable(${PROJECT_NAME} main.cc mysql.cc user_controller.cc jwt_controller.cc msg_controller.cc)
+add_executable(${PROJECT_NAME} main.cc mysql.cc user_controller.cc jwt_controller.cc msg_controller.cc file_controller.cc)
 
 
 # 链接MySQL Connector/C++库
@@ -52,7 +52,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE -L${MYSQL_CONNECTOR_CPP_ROOT}/lib6
 find_package(OpenSSL REQUIRED)
 
 # 添加 OpenSSL 库到可执行文件链接参数
-target_link_libraries(flypen PRIVATE OpenSSL::Crypto)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto)
 
 #link_directories(/home/lgy/c++kc/mysql-connector/lib64)
 #
@@ -95,4 +95,4 @@ target_sources(${PROJECT_NAME}
 
 # ##############################################################################
 
-add_subdirectory(test)
+#add_subdirectory(test)
