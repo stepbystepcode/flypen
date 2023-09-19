@@ -24,7 +24,7 @@ int main() {
         request_processing(req, std::move(callback));
     });
     drogon::app().registerHandler("/api/newfriends", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
-        friend_request(req, std::move(callback));
+        friend_operation(req, std::move(callback));
     });
       drogon::app().registerHandler("/api/info", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         info(req, std::move(callback));

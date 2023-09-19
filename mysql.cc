@@ -7,6 +7,50 @@
 #include "jdbc/mysql_driver.h"
 #include "json/json.h"
 
+void sql_delete_operation(std::string sender, std::string receiver)
+{
+    std::vector<std::string> usernamelist;
+    sql::mysql::MySQL_Driver *driver;
+    driver = sql::mysql::get_mysql_driver_instance();
+    sql::Connection *con;
+    con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    con->setSchema("flypen");
+    std::string readdata = "SELECT friends FROM users WHERE username = ?";
+    std::string Sfriendlist, Rfriendlist;
+    std::string changedata = "UPDATE users SET friends=? WHERE username =?";
+    sql::PreparedStatement *readdatament = con->prepareStatement(readdata);
+    readdatament->setString(1, sender);
+    sql::ResultSet *SresultSet = readdatament->executeQuery();
+    if (SresultSet->next())
+    {
+        Sfriendlist = SresultSet->getString("friends");
+    }
+    int pos = Sfriendlist.find(receiver);
+    if (pos != std::string::npos && pos != 0)
+        Sfriendlist.erase(pos - 1, receiver.length() + 1);
+    else if (pos == 0)
+        Sfriendlist.erase(pos, receiver.length() + 1);
+    std::cout << Sfriendlist << "\n";
+    sql::PreparedStatement *updateStatement = con->prepareStatement(changedata);
+    updateStatement->setString(1, Sfriendlist);
+    updateStatement->setString(2, sender);
+    updateStatement->execute();
+    readdatament->setString(1, receiver);
+    sql::ResultSet *RresultSet = readdatament->executeQuery();
+    if (RresultSet->next())
+    {
+        Rfriendlist = RresultSet->getString("friends");
+    }
+    pos = Rfriendlist.find(sender);
+    if (pos != std::string::npos && pos != 0)
+        Rfriendlist.erase(pos - 1, sender.length() + 1);
+    else if (pos == 0)
+        Rfriendlist.erase(pos, sender.length() + 1);
+    std::cout << Rfriendlist << "\n";
+    updateStatement->setString(1, Rfriendlist);
+    updateStatement->setString(2, receiver);
+    updateStatement->execute();
+}
 void sql_process_request(std::string sender, std::string receiver, std::string attitude)
 {
     std::vector<std::string> usernamelist;
@@ -17,9 +61,9 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
 
     std::string readData = "SELECT req FROM users WHERE username = ?";
     sql::PreparedStatement *readDatament = con->prepareStatement(readData);
-    readDatament->setString(1, sender);
+    readdatament->setString(1, receiver);
+    sql::ResultSet *resultSet = readdatament->executeQuery();
 
-    sql::ResultSet *resultSet = readDatament->executeQuery();
     std::string req;
     if (resultSet->next())
         req = resultSet->getString("req");
@@ -80,12 +124,10 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
         }
         delete RS;
     }
-
     delete updateStatement;
     delete resultSet;
     delete readDatament;
     delete con;
-
     return;
 }
 
