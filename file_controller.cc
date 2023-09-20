@@ -23,7 +23,7 @@ std::string shell_commons(const char* cmd) {
     return result;
 }
 
-std::string genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+void genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     char *pathvar;
     pathvar = getenv("PWD");
@@ -32,9 +32,8 @@ std::string genTree(const HttpRequestPtr &req, std::function<void(const HttpResp
     res->addHeader("Access-Control-Allow-Origin", "*");
     res ->setBody(result);  
     callback(res);
-    return result;
 }
-std::string catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+void catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     char *pathvar;
     pathvar = getenv("PWD");
@@ -44,5 +43,25 @@ std::string catFile(const HttpRequestPtr &req, std::function<void(const HttpResp
     res->addHeader("Access-Control-Allow-Origin", "*");
     res ->setBody(result);  
     callback(res);
-    return result;
+}
+void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
+    auto body = req->getBody();
+    Json::Value req_json;
+    Json::Reader reader;
+    std::string bodyStr(body);
+    if (!reader.parse(bodyStr, req_json)) {
+        std::cout<<"parse failed"<<std::endl;
+        callback(HttpResponse::newHttpResponse());
+        return;
+    }
+    char *pathvar;
+    pathvar = getenv("PWD");
+    std::string filename = req_json["filename"].asString();
+    std::string content = req_json["content"].asString();
+    std::string result = shell_commons(("echo '"+content+"'>"+std::string(pathvar)+"/../root/"+filename).c_str()) ;
+    auto res = HttpResponse::newHttpResponse();
+    res->addHeader("Access-Control-Allow-Origin", "*");
+    res ->setBody("success");  
+    callback(res);
 }

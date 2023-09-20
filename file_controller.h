@@ -4,7 +4,8 @@
 #include <drogon/drogon.h>
 using namespace drogon;
 std::string shell_commons(const char* cmd);
-std::string genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
-std::string catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+void genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+void catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
 //std::string 
 #endif

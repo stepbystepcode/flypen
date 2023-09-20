@@ -37,9 +37,11 @@ int main() {
     drogon::app().registerHandler("/api/file/cat", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         catFile(req, std::move(callback));
     });  
+    drogon::app().registerHandler("/api/file/save", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+        saveFile(req, std::move(callback));
+    });  
       drogon::app().registerHandler("/api/avatar", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         avatar(req, std::move(callback));
-
     });
     drogon::app().run();
     return 0;
