@@ -28,7 +28,6 @@ std::string genTree(const HttpRequestPtr &req, std::function<void(const HttpResp
     char *pathvar;
     pathvar = getenv("PWD");
     std::string result = shell_commons(("cd "+std::string(pathvar)+"/.. " + "&&"+"tree -J root" ).c_str()) ;
-    std::cout << result << std::endl;
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
     res ->setBody(result);  
