@@ -18,9 +18,9 @@ void sql_delete_operation(std::string sender, std::string receiver)
     std::string readdata = "SELECT friends FROM users WHERE username = ?";
     std::string Sfriendlist, Rfriendlist;
     std::string changedata = "UPDATE users SET friends=? WHERE username =?";
-    sql::PreparedStatement *readdatament = con->prepareStatement(readdata);
-    readdatament->setString(1, sender);
-    sql::ResultSet *SresultSet = readdatament->executeQuery();
+    sql::PreparedStatement *readDatament = con->prepareStatement(readdata);
+    readDatament->setString(1, sender);
+    sql::ResultSet *SresultSet = readDatament->executeQuery();
     if (SresultSet->next())
     {
         Sfriendlist = SresultSet->getString("friends");
@@ -35,8 +35,8 @@ void sql_delete_operation(std::string sender, std::string receiver)
     updateStatement->setString(1, Sfriendlist);
     updateStatement->setString(2, sender);
     updateStatement->execute();
-    readdatament->setString(1, receiver);
-    sql::ResultSet *RresultSet = readdatament->executeQuery();
+    readDatament->setString(1, receiver);
+    sql::ResultSet *RresultSet = readDatament->executeQuery();
     if (RresultSet->next())
     {
         Rfriendlist = RresultSet->getString("friends");
@@ -61,8 +61,8 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
 
     std::string readData = "SELECT req FROM users WHERE username = ?";
     sql::PreparedStatement *readDatament = con->prepareStatement(readData);
-    readdatament->setString(1, receiver);
-    sql::ResultSet *resultSet = readdatament->executeQuery();
+    readDatament->setString(1, receiver);
+    sql::ResultSet *resultSet = readDatament->executeQuery();
 
     std::string req;
     if (resultSet->next())
@@ -338,88 +338,6 @@ Json::Value get_chat_info(std::string me, std::string who_send_me)
 
     return json;
 }
-
-/*
-Json::Value get_chat_info(std::string me, std::string who_send_me)
-{
-    Json::Value json;
-    std::string* send = new std::string[2]{me, who_send_me};
-
-    try
-    {
-        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
-        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
-        con->setSchema("flypen");
-
-        for (int i = 0; i < 2; i++)
-        {
-            if (!send[i].empty())
-            {
-                std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
-                sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-                prepStmt->setString(1, send[i]);
-
-                sql::ResultSet *res = prepStmt->executeQuery();
-
-                // this
-                if (res->next())
-                {
-                    Json::Value user;
-                    int avatar = res->getInt("avatar");
-                    std::string token;
-                    std::string* FR = new std::string[2]{0};
-                    std::string* who = new std::string[2]{"friends", "req"};
-
-                    for(int i = 0; i < 2; i++)
-                    {
-                        FR[i] = res->getString(who[i]);
-                        Json::Value array(Json::arrayValue);    // ???
-
-                        std::stringstream strStream(FR[i]);
-
-                        while(std::getline(strStream, token, ','))
-                        {
-                            Json::Value aVisit;
-                            aVisit["username"] = token;
-
-                            std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
-                            sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-                            prepStmt->setString(1, token);
-                            sql::ResultSet *res = prepStmt->executeQuery();
-
-                            if(res->next())
-                                aVisit["avatar"] = res->getInt("avatar");    // 假设avatar统一为4
-
-                            array.append(aVisit);
-                        }
-                        user[who[i]] = array;
-                    }
-                    user["avatar"] = avatar;
-
-                    Json::StreamWriterBuilder builder;
-                    std::string userJson = Json::writeString(builder, user);
-                    json[send[i]] = user;
-
-                    delete FR;
-                    delete who;
-                }
-
-                delete res;
-                delete prepStmt;
-            }
-        }
-
-        delete send;
-        delete con;
-    }
-    catch (sql::SQLException &e)
-    {
-        std::cerr << "SQL Exception: " << e.what() << std::endl;
-    }
-
-    return json;
-}
-*/
 
 bool sql_check(std::string user, std::string passwd)
 {
