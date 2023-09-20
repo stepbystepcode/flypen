@@ -34,3 +34,15 @@ std::string genTree(const HttpRequestPtr &req, std::function<void(const HttpResp
     callback(res);
     return result;
 }
+std::string catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
+    char *pathvar;
+    pathvar = getenv("PWD");
+    std::string path = req->getParameter("path");
+    std::string result = shell_commons(("cat "+std::string(pathvar)+"/../root/"+path).c_str()) ;
+    auto res = HttpResponse::newHttpResponse();
+    res->addHeader("Access-Control-Allow-Origin", "*");
+    res ->setBody(result);  
+    callback(res);
+    return result;
+}
