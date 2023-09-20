@@ -16,5 +16,6 @@ Json::Value sql_find_my_msg(std::string);
 Json::Value get_chat_info(std::string,std::string="");
 
 void sql_delete_operation(std::string,std::string);
+void set_avatar(std::string person, int avatar);
 
 #endif

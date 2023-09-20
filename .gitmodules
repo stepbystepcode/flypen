@@ -1,0 +1,6 @@
+[submodule "drogon"]
+	path = drogon
+	url = https://github.com/drogonframework/drogon
+[submodule "jwt-cpp"]
+	path = jwt-cpp
+	url = https://github.com/Thalhammer/jwt-cpp
