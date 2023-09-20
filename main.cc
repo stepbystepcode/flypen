@@ -34,6 +34,9 @@ int main() {
     drogon::app().registerHandler("/api/file/tree", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         genTree(req, std::move(callback));
     });  
+    drogon::app().registerHandler("/api/file/cat", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+        catFile(req, std::move(callback));
+    });  
       drogon::app().registerHandler("/api/avatar", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         avatar(req, std::move(callback));
 
