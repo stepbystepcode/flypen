@@ -43,7 +43,10 @@ int main() {
       drogon::app().registerHandler("/api/avatar", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
         avatar(req, std::move(callback));
     });
-    drogon::app().run();
+      drogon::app().registerHandler("/api/upload", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+        imageUpload(req, std::move(callback));
+    });
+    drogon::app().setUploadPath("./uploads").run();
     return 0;
 }
 
