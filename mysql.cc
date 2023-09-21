@@ -40,12 +40,10 @@ int sql_findexist(std::string receiver){
     sql::PreparedStatement * readdatament = con->prepareStatement(readdata);
     sql::ResultSet *resultSet =readdatament->executeQuery();
     std::string usernamelist;
-    if(resultSet->next()){
-        usernamelist = resultSet->getString("username");
+    while(resultSet->next()){
+        if(receiver == resultSet->getString("username"))return 1;
     }  
-    int pos = usernamelist.find(receiver);
-    if(pos!=std::string::npos)return 1;
-    else return 0; 
+    return 0; 
 }
 int lockcheck(std::string filename){
     sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
@@ -54,20 +52,17 @@ int lockcheck(std::string filename){
     std::string readData ="SELECT filename FROM file";
     sql::PreparedStatement *readdatament =con->prepareStatement(readData);
     sql::ResultSet *resultSet =readdatament->executeQuery();
-    std::string filenamelist;
-    if(resultSet->next()){
-        filenamelist =resultSet->getString("filename");    
-        std::cout<<filenamelist<<std::endl;    
+
+    std::string name;
+    while(resultSet->next()){
+        if(resultSet->getString("filename")==filename) return 1;
+
     }
-    int pos =filenamelist.find(filename);
-    if(pos!=std::string::npos)return 1;
-    else {
         std::string changestate ="INSERT INTO file(filename) VALUES (?)";
         sql::PreparedStatement *changestatement =con->prepareStatement(changestate);
         changestatement->setString(1,filename);
         changestatement->executeUpdate(); 
         return 0;
-    } 
 }
 void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, sql::Connection *con)
 {
