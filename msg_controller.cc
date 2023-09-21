@@ -77,11 +77,10 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
     res->addHeader("Access-Control-Allow-Origin", "*");
 
     if (jwtVerify(req)) {
-
+        
         std::string receiver = jwtDecrypt(req->getHeader("Authorization").substr(7));
         std::string sender = req->getParameter("username");
         std::string attitude = req->getParameter("info");
-
         sql_process_request(sender, receiver, attitude);
         res->setBody("Success");
     } else {
@@ -106,7 +105,6 @@ void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
     res->addHeader("Access-Control-Allow-Origin", "*");
 
     if (jwtVerify(req)) {
-
         me = jwtDecrypt(req->getHeader("Authorization").substr(7));
         if (req_json["person"].asString() == "") {
             res->setBody(writer.write(get_chat_info(me, "")));
@@ -114,7 +112,6 @@ void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
             who_send_me = req_json["person"].asString();
             res->setBody(writer.write(get_chat_info(me, who_send_me)));
         }
-        
     } else {
         res->setBody("No Authorization");
     }
