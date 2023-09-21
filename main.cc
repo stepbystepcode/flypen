@@ -42,8 +42,8 @@ int main()
                                   { getPicture(req, std::move(callback)); },
                                   {Get});
 
-    drogon::app().registerHandler("/api/file/commonds", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
-                                  { commondsCtrl(req, std::move(callback)); });
+    drogon::app().registerHandler("/api/file/commands", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+                                  { commandsCtrl(req, std::move(callback)); });
 
     drogon::app().registerHandler("/api/file/lock", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   {add_lock(req, std::move(callback));});
