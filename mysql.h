@@ -4,6 +4,7 @@
 #include <jdbc/mysql_connection.h>
 #include <json/json.h>
 
+void sql_unlocked(std::string DeleteName);
 void sql_add(std::string username, std::string passwd, int avatar);
 bool sql_check(std::string  , std::string passwd="@DEFAULT@"); 
 void sql_addhistory(std::string,std::string,std::string,std::string);
