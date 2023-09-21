@@ -10,7 +10,7 @@
 
 std::string shell_commons(const char *cmd)
 {
-    char buffer[128];
+    char buffer[1280];
     std::string result = "";
     FILE *pipe = popen(cmd, "r");
     if (!pipe)
@@ -31,27 +31,108 @@ std::string shell_commons(const char *cmd)
     return result;
 }
 
-void genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+void commondsCtrl(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
+    std::cout << "commondsCtrl" << std::endl;
+    enum Command {
+        tree,
+        cp,
+        mv,
+        rm,
+        mkdir,
+        touch,
+        cat
+}command;
     char *pathvar;
     pathvar = getenv("PWD");
-    std::string result = shell_commons(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
+    
+    command = static_cast<Command>(stoi(req->getJsonObject()->get("command","").asString()));
+    std::string params1 = req->getJsonObject()->get("params","")[0].asString();
+    std::string params2 = req->getJsonObject()->get("params","")[1].asString();
+    std::string result;
+    switch (command)
+    {
+    case tree:
+        result = shell_commons(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
+        break;
+    case cp:
+        result = shell_commons(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+        if(result!="")
+            result = "success";
+        else
+            result = "error: in cp" ;
+        break;
+    case mv:
+        result = shell_commons(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+        if(result!="")
+            result = "success";
+        else
+            result = "error: in mv" ;
+        break;
+    case rm:
+        if(params1.find("..") != std::string::npos){
+            result = "error:result in wrong directory";
+            break;
+        }
+        result = shell_commons(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+        if(result!="")
+            result = "success";
+        else
+            result = "error: in rm" ;
+        break;
+    case mkdir:
+        result = shell_commons(("mkdir " + std::string(pathvar) + "/../root/" + params1).c_str());
+        if(result!="")
+            result = "success";
+        else
+            result = "error: in mkdir" ;
+        break;
+    case touch:
+        if("" == shell_commons(("ls  -l " + std::string(pathvar) + "/../root/" + params1  + " grep ^- ").c_str()))
+        {
+            result = shell_commons(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
+                 result = "success";
+        }
+       
+        else
+        {
+            result = "error:file already exists";
+        }
+        break;
+    case cat:
+        result = shell_commons(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
+        break;  
+    default:
+        result = "error:command not found";
+        break;
+    }
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
     res->setBody(result);
     callback(res);
+
 }
-void catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
-{
-    char *pathvar;
-    pathvar = getenv("PWD");
-    std::string path = req->getParameter("path");
-    std::string result = shell_commons(("cat " + std::string(pathvar) + "/../root/" + path).c_str());
-    auto res = HttpResponse::newHttpResponse();
-    res->addHeader("Access-Control-Allow-Origin", "*");
-    res->setBody(result);
-    callback(res);
-}
+// void genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+// {
+//     char *pathvar;
+//     pathvar = getenv("PWD");
+//     std::string result = shell_commons(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
+//     auto res = HttpResponse::newHttpResponse();
+//     res->addHeader("Access-Control-Allow-Origin", "*");
+//     res->setBody(result);
+//     callback(res);
+// }
+// void catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+// {
+//     char *pathvar;
+//     pathvar = getenv("PWD");
+//     std::string path = req->getParameter("path");
+//     std::string result = shell_commons(("cat " + std::string(pathvar) + "/../root/" + path).c_str());
+//     auto res = HttpResponse::newHttpResponse();
+//     res->addHeader("Access-Control-Allow-Origin", "*");
+//     res->setBody(result);
+//     callback(res);
+// }
 void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto body = req->getBody();
