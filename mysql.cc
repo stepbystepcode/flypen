@@ -12,22 +12,17 @@ void process(sql::PreparedStatement *readdatament, std::vector<std::string> s, s
         readdatament->setString(1, s[i]);
         sql::ResultSet *resultSet = readdatament->executeQuery();
         std::string friendlist;
-
         if (resultSet->next())
         {
             friendlist = resultSet->getString("friends");
         }
-
         int pos = friendlist.find(s[i + 1]);
-
         if (pos != std::string::npos && pos != 0)
             friendlist.erase(pos - 1, s[i + 1].length() + 1);
         else if (pos == 0)
             friendlist.erase(pos, s[i + 1].length() + 1);
-
         std::string changedata = "UPDATE users SET friends=? WHERE username =?";
         sql::PreparedStatement *updateStatement = con->prepareStatement(changedata);
-
         updateStatement->setString(1, friendlist);
         updateStatement->setString(2, s[i]);
         updateStatement->execute();
@@ -382,7 +377,7 @@ bool sql_check(std::string user, std::string passwd)
 Json::Value sql_find_my_msg(std::string me)
 
 {
-    std::cout << "login user: " << me << std::endl;
+    // std::cout << "login user: " << me << std::endl;
     try
     {
         sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
