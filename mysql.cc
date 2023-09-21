@@ -4,6 +4,42 @@
 #include "jdbc/mysql_driver.h"
 #include "json/json.h"
 // relate to chat
+int sql_findexist(std::string receiver){
+    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
+    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    con->setSchema("flypen");
+    std::string readdata ="SELECT username FROM users";
+    sql::PreparedStatement * readdatament = con->prepareStatement(readdata);
+    sql::ResultSet *resultSet =readdatament->executeQuery();
+    std::string usernamelist;
+    if(resultSet->next()){
+        usernamelist = resultSet->getString("username");
+    }  
+    int pos = usernamelist.find(receiver);
+    if(pos!=std::string::npos)return 1;
+    else return 0; 
+}
+int lockcheck(std::string filename){
+    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
+    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    con->setSchema("flypen");
+    std::string readdata ="SELECT filename FROM file";
+    sql::PreparedStatement *readdatament =con->prepareStatement(readdata);
+    sql::ResultSet *resultSet =readdatament->executeQuery();
+    std::string filenamelist;
+    if(resultSet->next()){
+        filenamelist =resultSet->getString("filename");        
+    }
+    int pos =filenamelist.find(filename);
+    if(pos!=std::string::npos)return 1;
+    else {
+        std::string changestate ="INSERT INTO file(filename) VALUES (?)";
+        sql::PreparedStatement *changestatement =con->prepareStatement(changestate);
+        changestatement->setString(1,filename);
+        changestatement->executeUpdate(); 
+        return 0;
+    } 
+}
 void process(sql::PreparedStatement *readdatament, std::vector<std::string> s, sql::Connection *con)
 {
     for (int i = 0; i < 2; i++)
@@ -161,26 +197,26 @@ void sql_addrequest(std::string sender, std::string receiver)
     delete tool;
     delete con;
 }
-void sql_addconnect(std::string connectptr)
-{
-    try
-    {
-        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
-        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
-        con->setSchema("flypen");
+// void sql_addconnect(std::string connectptr)
+// {
+//     try
+//     {
+//         sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
+//         sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+//         con->setSchema("flypen");
 
-        std::string classMysql = "INSERT INTO users(username, password, time, connection) VALUES (?, ?, NOW(), ?)";
-        sql::PreparedStatement *insertConnect = con->prepareStatement(classMysql);
-        insertConnect->setString(4, connectptr);
+//         std::string classMysql = "INSERT INTO users(username, password, time, connection) VALUES (?, ?, NOW(), ?)";
+//         sql::PreparedStatement *insertConnect = con->prepareStatement(classMysql);
+//         insertConnect->setString(4, connectptr);
 
-        delete insertConnect;
-        delete con;
-    }
-    catch (sql::SQLException &e)
-    {
-        std::cerr << "SQL Exception: " << e.what() << std::endl;
-    }
-}
+//         delete insertConnect;
+//         delete con;
+//     }
+//     catch (sql::SQLException &e)
+//     {
+//         std::cerr << "SQL Exception: " << e.what() << std::endl;
+//     }
+// }
 void sql_addhistory(std::string sender, std::string receiver, std::string message, std::string isread)
 {
     try

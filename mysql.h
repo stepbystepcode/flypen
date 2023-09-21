@@ -12,10 +12,9 @@ void sql_addconnect(std::string connectptr);
 void sql_addrequest(std::string send,std::string receiver);
 void sql_process_request(std::string ,std::string,std::string);
 Json::Value sql_find_my_msg(std::string);
-
+int lockcheck(std::string filename);
 Json::Value get_chat_info(std::string,std::string="");
-
 void sql_delete_operation(std::string,std::string);
 void set_avatar(std::string person, int avatar);
-
+int sql_findexist(std::string receiver);
 #endif
