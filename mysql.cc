@@ -49,12 +49,14 @@ int lockcheck(std::string filename){
     sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
-    std::string readdata ="SELECT filename FROM file";
-    sql::PreparedStatement *readdatament =con->prepareStatement(readdata);
+    std::string readData ="SELECT filename FROM file";
+    sql::PreparedStatement *readdatament =con->prepareStatement(readData);
     sql::ResultSet *resultSet =readdatament->executeQuery();
+
     std::string name;
     while(resultSet->next()){
-        if(resultSet->getString("filename")==filename)return 1;       
+        if(resultSet->getString("filename")==filename) return 1;
+
     }
         std::string changestate ="INSERT INTO file(filename) VALUES (?)";
         sql::PreparedStatement *changestatement =con->prepareStatement(changestate);
