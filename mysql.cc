@@ -62,7 +62,7 @@ int lockcheck(std::string filename){
         changestatement->executeUpdate(); 
         return 0;
 }
-void process(sql::PreparedStatement *readdatament, std::vector<std::string> s, sql::Connection *con)
+void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, sql::Connection *con)
 {
     for (int i = 0; i < 2; i++)
     {
