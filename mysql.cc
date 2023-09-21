@@ -51,12 +51,13 @@ int lockcheck(std::string filename){
     sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
-    std::string readdata ="SELECT filename FROM file";
-    sql::PreparedStatement *readdatament =con->prepareStatement(readdata);
+    std::string readData ="SELECT filename FROM file";
+    sql::PreparedStatement *readdatament =con->prepareStatement(readData);
     sql::ResultSet *resultSet =readdatament->executeQuery();
     std::string filenamelist;
     if(resultSet->next()){
-        filenamelist =resultSet->getString("filename");        
+        filenamelist =resultSet->getString("filename");    
+        std::cout<<filenamelist<<std::endl;    
     }
     int pos =filenamelist.find(filename);
     if(pos!=std::string::npos)return 1;
@@ -68,7 +69,7 @@ int lockcheck(std::string filename){
         return 0;
     } 
 }
-void process(sql::PreparedStatement *readdatament, std::vector<std::string> s, sql::Connection *con)
+void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, sql::Connection *con)
 {
     for (int i = 0; i < 2; i++)
     {
