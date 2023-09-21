@@ -3,7 +3,35 @@
 #include "jdbc/mysql_connection.h"
 #include "jdbc/mysql_driver.h"
 #include "json/json.h"
+
+void sql_unlocked(std::string DeleteName)
+{
+    try
+    {
+        std::string filename = DeleteName;
+
+        // open MySQL
+        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
+        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        con->setSchema("flypen");
+
+        sql::Statement *stmt = con->createStatement();
+
+        std::string DeleteQuery = "DELETE FROM file WHERE filename = " + DeleteName;
+
+        int rowsDelete = stmt->executeUpdate(DeleteQuery);
+
+        delete stmt;
+        delete con;
+    }
+    catch (sql::SQLException &e)
+    {
+        std::cerr << "SQL Exception: in sql_unlocked() function" << e.what() << std::endl;
+    }
+}
+
 // relate to chat
+
 int sql_findexist(std::string receiver){
     sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
@@ -38,8 +66,8 @@ void process(sql::PreparedStatement *readdatament, std::vector<std::string> s, s
 {
     for (int i = 0; i < 2; i++)
     {
-        readdatament->setString(1, s[i]);
-        sql::ResultSet *resultSet = readdatament->executeQuery();
+        readDatament->setString(1, s[i]);
+        sql::ResultSet *resultSet = readDatament->executeQuery();
         std::string friendlist;
         if (resultSet->next())
         {
@@ -57,19 +85,22 @@ void process(sql::PreparedStatement *readdatament, std::vector<std::string> s, s
         updateStatement->execute();
     }
 }
+
 void sql_delete_operation(std::string sender, std::string receiver)
 {
     sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+
     con->setSchema("flypen");
     std::vector<std::string> s;
     s.push_back(sender);
     s.push_back(receiver);
     std::string readdata = "SELECT friends FROM users WHERE username = ?";
 
-    sql::PreparedStatement *readdatament = con->prepareStatement(readdata);
-    process(readdatament, s, con);
+    sql::PreparedStatement *readDatament = con->prepareStatement(readdata);
+    process(readDatament, s, con);
 }
+
 void sql_process_request(std::string sender, std::string receiver, std::string attitude)
 {
     std::vector<std::string> usernamelist;
@@ -80,15 +111,19 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
     std::string readData = "SELECT req FROM users WHERE username = ?";
     sql::PreparedStatement *readDatament = con->prepareStatement(readData);
     readDatament->setString(1, receiver);
+
     sql::ResultSet *resultSet = readDatament->executeQuery();
     std::string req;
+
     if (resultSet->next())
         req = resultSet->getString("req");
+
     size_t pos = req.find(sender);
     if (pos != std::string::npos && pos != 0)
         req.erase(pos - 1, sender.length() + 1);
     else if (pos == 0)
         req.erase(pos, sender.length() + 1);
+
     std::string updateQuery = "UPDATE users SET req = ? WHERE username = ?";
     sql::PreparedStatement *updateStatement = con->prepareStatement(updateQuery);
 
@@ -144,6 +179,7 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
     delete con;
     return;
 }
+
 void sql_addrequest(std::string sender, std::string receiver)
 {
     std::vector<std::string> usernamelist;
@@ -191,26 +227,29 @@ void sql_addrequest(std::string sender, std::string receiver)
     delete tool;
     delete con;
 }
-// void sql_addconnect(std::string connectptr)
-// {
-//     try
-//     {
-//         sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
-//         sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
-//         con->setSchema("flypen");
 
-//         std::string classMysql = "INSERT INTO users(username, password, time, connection) VALUES (?, ?, NOW(), ?)";
-//         sql::PreparedStatement *insertConnect = con->prepareStatement(classMysql);
-//         insertConnect->setString(4, connectptr);
 
-//         delete insertConnect;
-//         delete con;
-//     }
-//     catch (sql::SQLException &e)
-//     {
-//         std::cerr << "SQL Exception: " << e.what() << std::endl;
-//     }
-// }
+void sql_addconnect(std::string connectptr)
+{
+    try
+    {
+        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
+        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        con->setSchema("flypen");
+
+        std::string classMysql = "INSERT INTO users(username, password, time, connection) VALUES (?, ?, NOW(), ?)";
+        sql::PreparedStatement *insertConnect = con->prepareStatement(classMysql);
+        insertConnect->setString(4, connectptr);
+
+        delete insertConnect;
+        delete con;
+    }
+    catch (sql::SQLException &e)
+    {
+        std::cerr << "SQL Exception: " << e.what() << std::endl;
+    }
+}
+
 void sql_addhistory(std::string sender, std::string receiver, std::string message, std::string isread)
 {
     try
@@ -236,6 +275,7 @@ void sql_addhistory(std::string sender, std::string receiver, std::string messag
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
+
 // relate to user
 void sql_add(std::string username, std::string passwd, int avatar)
 {
@@ -263,6 +303,7 @@ void sql_add(std::string username, std::string passwd, int avatar)
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 }
+
 Json::Value get_chat_info(std::string me, std::string who_send_me)
 {
     Json::Value json;
@@ -348,87 +389,7 @@ Json::Value get_chat_info(std::string me, std::string who_send_me)
 
     return json;
 }
-/*
-Json::Value get_chat_info(std::string me, std::string who_send_me)
-{
-    Json::Value json;
-    std::string* send = new std::string[2]{me, who_send_me};
 
-    try
-    {
-        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
-        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
-        con->setSchema("flypen");
-
-        for (int i = 0; i < 2; i++)
-        {
-            if (!send[i].empty())
-            {
-                std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
-                sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-                prepStmt->setString(1, send[i]);
-
-                sql::ResultSet *res = prepStmt->executeQuery();
-
-                // this
-                if (res->next())
-                {
-                    Json::Value user;
-                    int avatar = res->getInt("avatar");
-                    std::string token;
-                    std::string* FR = new std::string[2]{0};
-                    std::string* who = new std::string[2]{"friends", "req"};
-
-                    for(int i = 0; i < 2; i++)
-                    {
-                        FR[i] = res->getString(who[i]);
-                        Json::Value array(Json::arrayValue);    // ???
-
-                        std::stringstream strStream(FR[i]);
-
-                        while(std::getline(strStream, token, ','))
-                        {
-                            Json::Value aVisit;
-                            aVisit["username"] = token;
-
-                            std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
-                            sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-                            prepStmt->setString(1, token);
-                            sql::ResultSet *res = prepStmt->executeQuery();
-
-                            if(res->next())
-                                aVisit["avatar"] = res->getInt("avatar");    // 假设avatar统一为4
-
-                            array.append(aVisit);
-                        }
-                        user[who[i]] = array;
-                    }
-                    user["avatar"] = avatar;
-
-                    Json::StreamWriterBuilder builder;
-                    std::string userJson = Json::writeString(builder, user);
-                    json[send[i]] = user;
-
-                    delete FR;
-                    delete who;
-                }
-
-                delete res;
-                delete prepStmt;
-            }
-        }
-
-        delete send;
-        delete con;
-    }
-    catch (sql::SQLException &e)
-    {
-        std::cerr << "SQL Exception: " << e.what() << std::endl;
-    }
-
-    return json;
-}
-*/
 bool sql_check(std::string user, std::string passwd)
 {
     bool result = false;
@@ -541,6 +502,7 @@ Json::Value sql_find_my_msg(std::string me)
         return "error";
     }
 }
+
 void set_avatar(std::string person, int avatar)
 {
     sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
