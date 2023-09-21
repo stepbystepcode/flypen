@@ -8,16 +8,22 @@
 #include <stdexcept>
 #include <string>
 
-std::string shell_commons(const char *cmd) {
+std::string shell_commons(const char *cmd)
+{
     char buffer[128];
     std::string result = "";
     FILE *pipe = popen(cmd, "r");
-    if (!pipe) throw std::runtime_error("popen() failed!");
-    try {
-        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+    if (!pipe)
+        throw std::runtime_error("popen() failed!");
+    try
+    {
+        while (fgets(buffer, sizeof buffer, pipe) != NULL)
+        {
             result += buffer;
         }
-    } catch (...) {
+    }
+    catch (...)
+    {
         pclose(pipe);
         throw;
     }
@@ -25,7 +31,8 @@ std::string shell_commons(const char *cmd) {
     return result;
 }
 
-void genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+void genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
     char *pathvar;
     pathvar = getenv("PWD");
     std::string result = shell_commons(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
@@ -34,7 +41,8 @@ void genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr
     res->setBody(result);
     callback(res);
 }
-void catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+void catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
     char *pathvar;
     pathvar = getenv("PWD");
     std::string path = req->getParameter("path");
@@ -44,12 +52,14 @@ void catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr
     res->setBody(result);
     callback(res);
 }
-void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
     auto body = req->getBody();
     Json::Value req_json;
     Json::Reader reader;
     std::string bodyStr(body);
-    if (!reader.parse(bodyStr, req_json)) {
+    if (!reader.parse(bodyStr, req_json))
+    {
         std::cout << "parse failed" << std::endl;
         callback(HttpResponse::newHttpResponse());
         return;
@@ -64,9 +74,12 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
     res->setBody("success");
     callback(res);
 }
-void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+
+void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
     MultiPartParser fileUpload;
-    if (fileUpload.parse(req) != 0 || fileUpload.getFiles().size() != 1) {
+    if (fileUpload.parse(req) != 0 || fileUpload.getFiles().size() != 1)
+    {
         auto resp = HttpResponse::newHttpResponse();
         resp->setBody("Must only be one file");
         resp->setStatusCode(k403Forbidden);
@@ -74,11 +87,15 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
         return;
     }
     auto &file = fileUpload.getFiles()[0];
-    auto md5 = file.getMd5();
+    auto now = std::chrono::system_clock::now();
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+    std::string timestamp = std::to_string(ms) + '.' + std::string(file.getFileExtension());
     auto resp = HttpResponse::newHttpResponse();
-    resp->setBody(
-        "The server has calculated the file's MD5 hash to be " + md5);
+    resp->addHeader("Access-Control-Allow-Origin", "*");
+    resp->setBody(timestamp);
     file.save();
+    shell_commons(("mv  ./uploads/" + file.getFileName() + " ./uploads/" + timestamp).c_str());
+
     LOG_INFO << "The uploaded file has been saved to the ./uploads "
                 "directory";
     callback(resp);
@@ -97,4 +114,11 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
     //   Json::Value resp;
     //   resp["filename"] = fileName;
     //   callback(HttpResponse::newHttpJsonResponse(resp));
+}
+void getPicture(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
+    std::string filename = req->getParameter("filename");
+    auto resp = HttpResponse::newFileResponse("./uploads/" + filename);
+    resp->addHeader("Access-Control-Allow-Origin", "*");
+    callback(resp);
 }
