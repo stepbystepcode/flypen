@@ -96,7 +96,7 @@ void commondsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
             result = "error: in rm" ;
         break;
     case mkdir:
-        result = shell_commons(("mkdir " + std::string(pathvar) + "/../root/" + params1).c_str());
+        result = shell_commons(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
         if(result!="")
             result = "success";
         else
