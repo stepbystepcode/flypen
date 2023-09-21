@@ -2,12 +2,26 @@
 
 #include <json/json.h>
 #include <stdio.h>
-
+#include <mysql.h>
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <string>
-
+void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback){
+    std::string filename = req->getParameter("filename");
+    if(lockcheck(filename)){
+        auto res = HttpResponse::newHttpResponse();
+        res->addHeader("Access-Control-Allow-Origin", "*");
+        res->setBody("This file has been occupied");
+        callback(res);
+    }
+    else {
+        auto res = HttpResponse::newHttpResponse();
+        res->addHeader("Access-Control-Allow-Origin", "*");
+        res->setBody("This file is yours");
+        callback(res);
+    }
+}
 std::string shell_commons(const char *cmd)
 {
     char buffer[128];
@@ -46,9 +60,9 @@ void catFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr
     char *pathvar;
     pathvar = getenv("PWD");
     std::string path = req->getParameter("path");
-    std::string result = shell_commons(("cat " + std::string(pathvar) + "/../root/" + path).c_str());
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
+    std::string result = shell_commons(("cat " + std::string(pathvar) + "/../root/" + path).c_str());
     res->setBody(result);
     callback(res);
 }
