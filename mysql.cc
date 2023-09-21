@@ -4,13 +4,39 @@
 #include "jdbc/mysql_driver.h"
 #include "json/json.h"
 
+void sql_unlocked(std::string DeleteName)
+{
+    try
+    {
+        std::string filename = DeleteName;
+
+        // open MySQL
+        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
+        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        con->setSchema("flypen");
+
+        sql::Statement *stmt = con->createStatement();
+
+        std::string DeleteQuery = "DELETE FROM file WHERE filename = " + DeleteName;
+
+        int rowsDelete = stmt->executeUpdate(DeleteQuery);
+
+        delete stmt;
+        delete con;
+    }
+    catch (sql::SQLException &e)
+    {
+        std::cerr << "SQL Exception: in sql_unlocked() function" << e.what() << std::endl;
+    }
+}
+
 // relate to chat
-void process(sql::PreparedStatement *readdatament, std::vector<std::string> s, sql::Connection *con)
+void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, sql::Connection *con)
 {
     for (int i = 0; i < 2; i++)
     {
-        readdatament->setString(1, s[i]);
-        sql::ResultSet *resultSet = readdatament->executeQuery();
+        readDatament->setString(1, s[i]);
+        sql::ResultSet *resultSet = readDatament->executeQuery();
         std::string friendlist;
         if (resultSet->next())
         {
@@ -40,8 +66,8 @@ void sql_delete_operation(std::string sender, std::string receiver)
     s.push_back(receiver);
     std::string readdata = "SELECT friends FROM users WHERE username = ?";
 
-    sql::PreparedStatement *readdatament = con->prepareStatement(readdata);
-    process(readdatament, s, con);
+    sql::PreparedStatement *readDatament = con->prepareStatement(readdata);
+    process(readDatament, s, con);
 }
 
 void sql_process_request(std::string sender, std::string receiver, std::string attitude)
@@ -66,7 +92,7 @@ void sql_process_request(std::string sender, std::string receiver, std::string a
         req.erase(pos - 1, sender.length() + 1);
     else if (pos == 0)
         req.erase(pos, sender.length() + 1);
-        
+
     std::string updateQuery = "UPDATE users SET req = ? WHERE username = ?";
     sql::PreparedStatement *updateStatement = con->prepareStatement(updateQuery);
 

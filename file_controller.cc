@@ -2,7 +2,7 @@
 #include "jwt_controller.h"
 #include <json/json.h>
 #include <stdio.h>
-
+#include "mysql.h"
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
@@ -89,7 +89,9 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
         std::string filename = req_json["filename"].asString();
         std::string content = req_json["content"].asString();
         std::string result = shell_commons(("echo '" + content + "'>" + std::string(pathvar) + "/../root/" + filename).c_str());
-
+        
+        sql_unlocked(filename);
+        
         res->addHeader("Access-Control-Allow-Origin", "*");
         res->setBody("success");
         callback(res);
