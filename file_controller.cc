@@ -22,7 +22,7 @@ void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
         callback(res);
     }
 }
-std::string shell_commons(const char *cmd)
+std::string shell_commands(const char *cmd)
 {
     char buffer[1280];
     std::string result = "";
@@ -45,10 +45,10 @@ std::string shell_commons(const char *cmd)
     return result;
 }
 
-void commondsCtrl(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
 
-    std::cout << "commondsCtrl" << std::endl;
+    std::cout << "commandsCtrl" << std::endl;
     enum Command {
         tree,
         cp,
@@ -68,17 +68,17 @@ void commondsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
     switch (command)
     {
     case tree:
-        result = shell_commons(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
+        result = shell_commands(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
         break;
     case cp:
-        result = shell_commons(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+        result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
         if(result!="")
             result = "success";
         else
             result = "error: in cp" ;
         break;
     case mv:
-        result = shell_commons(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+        result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
         if(result!="")
             result = "success";
         else
@@ -89,23 +89,23 @@ void commondsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
             result = "error:result in wrong directory";
             break;
         }
-        result = shell_commons(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+        result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
         if(result!="")
             result = "success";
         else
             result = "error: in rm" ;
         break;
     case mkdir:
-        result = shell_commons(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+        result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
         if(result!="")
             result = "success";
         else
             result = "error: in mkdir" ;
         break;
     case touch:
-        if("" == shell_commons(("ls  -l " + std::string(pathvar) + "/../root/" + params1  + " grep ^- ").c_str()))
+        if("" == shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1  + " grep ^- ").c_str()))
         {
-            result = shell_commons(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
+            result = shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
                  result = "success";
         }
        
@@ -115,7 +115,7 @@ void commondsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
         }
         break;
     case cat:
-        result = shell_commons(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
+        result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
         break;  
     default:
         result = "error:command not found";
@@ -131,7 +131,7 @@ void commondsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
 // {
 //     char *pathvar;
 //     pathvar = getenv("PWD");
-//     std::string result = shell_commons(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
+//     std::string result = shell_commands(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
 //     auto res = HttpResponse::newHttpResponse();
 //     res->addHeader("Access-Control-Allow-Origin", "*");
 //     res->setBody(result);
@@ -142,7 +142,7 @@ void commondsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
 //     char *pathvar;
 //     pathvar = getenv("PWD");
 //     std::string path = req->getParameter("path");
-//     std::string result = shell_commons(("cat " + std::string(pathvar) + "/../root/" + path).c_str());
+//     std::string result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + path).c_str());
 //     auto res = HttpResponse::newHttpResponse();
 //     res->addHeader("Access-Control-Allow-Origin", "*");
 //     res->setBody(result);
@@ -169,7 +169,7 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
         pathvar = getenv("PWD");
         std::string filename = req_json["filename"].asString();
         std::string content = req_json["content"].asString();
-        std::string result = shell_commons(("echo '" + content + "'>" + std::string(pathvar) + "/../root/" + filename).c_str());
+        std::string result = shell_commands(("echo '" + content + "'>" + std::string(pathvar) + "/../root/" + filename).c_str());
         
         sql_unlocked(filename);
         
@@ -205,7 +205,7 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
         resp->addHeader("Access-Control-Allow-Origin", "*");
         resp->setBody(timestamp);
         file.save();
-        shell_commons(("mv  ./uploads/" + file.getFileName() + " ./uploads/" + timestamp).c_str());
+        shell_commands(("mv  ./uploads/" + file.getFileName() + " ./uploads/" + timestamp).c_str());
 
         LOG_INFO << "The uploaded file has been saved to the ./uploads "
                     "directory";
