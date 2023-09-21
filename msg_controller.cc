@@ -23,7 +23,9 @@ void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
         std::string sender = jwtDecrypt(req->getHeader("Authorization").substr(7));
         std::string content = req_json["content"].asString();
         std::string receiver = req_json["receiver"].asString();
+
         sql_addhistory(sender, receiver, content, "0");
+        
         std::string msg = req_json["content"].asString();
         auto output = writer.write(res_json);
         res->setBody(output);
@@ -57,10 +59,12 @@ void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpRe
         std::string sender = jwtDecrypt(req->getHeader("Authorization").substr(7));
         std::string receiver = req->getParameter("username");
         std::string operation = req->getParameter("operation");
+
         if (operation == "add")
             sql_addrequest(sender, receiver);
         else
             sql_delete_operation(sender, receiver);
+
         res->setBody("Success");
     } else {
         res->setBody("No Authorization");
@@ -71,7 +75,9 @@ void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpRe
 void request_processing(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
+
     if (jwtVerify(req)) {
+        
         std::string receiver = jwtDecrypt(req->getHeader("Authorization").substr(7));
         std::string sender = req->getParameter("username");
         std::string attitude = req->getParameter("info");
@@ -80,6 +86,7 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
     } else {
         res->setBody("No Authorization");
     }
+
     callback(res);
 }
 // get chat info
@@ -96,6 +103,7 @@ void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
     Json::FastWriter writer;
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
+
     if (jwtVerify(req)) {
         me = jwtDecrypt(req->getHeader("Authorization").substr(7));
         if (req_json["person"].asString() == "") {
@@ -107,5 +115,6 @@ void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
     } else {
         res->setBody("No Authorization");
     }
+
     callback(res);
 }
