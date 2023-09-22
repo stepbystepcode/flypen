@@ -7,15 +7,26 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback){
+std:: string  return_status(std::string result,std::string command )
+{
+    if (result != "")
+        result = "success";
+    else
+        result = " error in :"+command;
+    return result;
+}
+void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
+{
     std::string filename = req->getParameter("filename");
-    if(lockcheck(filename)){
+    if (lockcheck(filename))
+    {
         auto res = HttpResponse::newHttpResponse();
         res->addHeader("Access-Control-Allow-Origin", "*");
         res->setBody("This file has been occupied");
         callback(res);
     }
-    else {
+    else
+    {
         auto res = HttpResponse::newHttpResponse();
         res->addHeader("Access-Control-Allow-Origin", "*");
         res->setBody("This file is yours");
@@ -49,7 +60,8 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
 {
 
     std::cout << "commandsCtrl" << std::endl;
-    enum Command {
+    enum Command
+    {
         tree,
         cp,
         mv,
@@ -57,13 +69,13 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
         mkdir,
         touch,
         cat
-}command;
+    } command;
     char *pathvar;
     pathvar = getenv("PWD");
-    
-    command = static_cast<Command>(stoi(req->getJsonObject()->get("command","").asString()));
-    std::string params1 = req->getJsonObject()->get("params","")[0].asString();
-    std::string params2 = req->getJsonObject()->get("params","")[1].asString();
+
+    command = static_cast<Command>(stoi(req->getJsonObject()->get("command", "").asString()));
+    std::string params1 = req->getJsonObject()->get("params", "")[0].asString();
+    std::string params2 = req->getJsonObject()->get("params", "")[1].asString();
     std::string result;
     switch (command)
     {
@@ -72,43 +84,33 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
         break;
     case cp:
         result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-        if(result!="")
-            result = "success";
-        else
-            result = "error: in cp" ;
+        result = return_status(result,"cp");
+
         break;
     case mv:
         result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-        if(result!="")
-            result = "success";
-        else
-            result = "error: in mv" ;
+        result = return_status(result,"mv");
         break;
     case rm:
-        if(params1.find("..") != std::string::npos){
+        if (params1.find("..") != std::string::npos)
+        {
             result = "error:result in wrong directory";
             break;
         }
         result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-        if(result!="")
-            result = "success";
-        else
-            result = "error: in rm" ;
+        result = return_status(result,"rm");
         break;
     case mkdir:
         result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-        if(result!="")
-            result = "success";
-        else
-            result = "error: in mkdir" ;
+        result = return_status(result,"mkdir");
         break;
     case touch:
-        if("" == shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1  + " grep ^- ").c_str()))
+        if ("" == shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()))
         {
             result = shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
-                 result = "success";
+            result = "success";
         }
-       
+
         else
         {
             result = "error:file already exists";
@@ -116,7 +118,7 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
         break;
     case cat:
         result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
-        break;  
+        break;
     default:
         result = "error:command not found";
         break;
@@ -125,7 +127,6 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
     res->addHeader("Access-Control-Allow-Origin", "*");
     res->setBody(result);
     callback(res);
-
 }
 // void genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 // {
@@ -149,7 +150,6 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
 //     callback(res);
 // }
 
-
 void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto res = HttpResponse::newHttpResponse();
@@ -170,9 +170,9 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
         std::string filename = req_json["filename"].asString();
         std::string content = req_json["content"].asString();
         std::string result = shell_commands(("echo '" + content + "'>" + std::string(pathvar) + "/../root/" + filename).c_str());
-        
+
         sql_unlocked(filename);
-        
+
         res->addHeader("Access-Control-Allow-Origin", "*");
         res->setBody("success");
         callback(res);
@@ -232,4 +232,3 @@ void getPicture(const HttpRequestPtr &req, std::function<void(const HttpResponse
         resp->setBody("No Authorization");
     }
 }
-
