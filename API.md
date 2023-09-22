@@ -1,138 +1,297 @@
 # API Documentation
-## User Management
+---
+title: flypen v1.0.0
+language_tabs:
+  - shell: Zsh
+  - http: HTTP
+  - javascript: JavaScript
+toc_footers: []
+includes: []
+search: true
+code_clipboard: true
+highlight_theme: darkula
+headingLevel: 2
 
-```POST /api/signup```
+---
+
+# flypen
+
+## POST /api/signup
 
 Register a new user account.
 
-- Request Body:
+POST /api/signup
 
-username: Username string
-password: Password string
+### Request Body
 
-- Response:
+| Name | Type | Description |
+| --- | --- | --- |
+| username | string | Username |
+| password | string | Password |
 
-201: User created successfully
-409: Username already exists
+### Responses
 
-```POST /api/login```
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 201 | User created successfully |  |  |
+| 409 | Username already exists |  |  |
+
+## POST /api/login
 
 Login with username and password.
 
-- Request Body:
+POST /api/login
 
-username: Username string
-password: Password string
+### Request Body
 
-- Response:
+| Name | Type | Description |
+| --- | --- | --- |
+| username | string | Username |
+| password | string | Password |
 
-200: Login succeeded
-401: Invalid credentials
+### Responses
 
-```POST /api/avatar```
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 200 | Login succeeded |  |  |
+| 401 | Invalid credentials |  |  |
+
+## POST /api/avatar
 
 Set user avatar.
 
-- Request Body:
+POST /api/avatar
 
-avatar: Avatar ID int
+### Request Body
 
-- Response:
+| Name | Type | Description |
+| --- | --- | --- |
+| avatar | int | Avatar ID |
 
-200: Login succeeded
-401: Invalid credentials
+### Responses
 
-## Chat
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 200 | Avatar set successfully |  |  |
+| 401 | Invalid credentials |  |  |
 
-```POST /api/chat```
-
-Send a chat message.
-
-- Request Body:
-
-content: Chat message content
-receiver: receiver username string
-
-- Response:
-
-200: Message sent
-404: User or chat room not found
-
-```POST /api/check```
+## POST /api/chat
 
 Send a chat message.
 
-- Response:
+POST /api/chat
 
-200: Message sent
-404: User or chat room not found
+### Request Body
 
-## Friend Management
+| Name | Type | Description |
+| --- | --- | --- |
+| content | string | Chat message content |
+| receiver | string | Receiver username |
 
-```POST /api/nfmgr```
+### Responses
+
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 200 | Message sent |  |  |
+| 404 | User or chat room not found |  |  |
+
+## POST /api/check
+
+Check if a user is online.
+
+POST /api/check
+
+### Responses
+
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 200 | User is online |  |  |
+| 404 | User not found |  |  |
+
+## POST /api/nfmgr
 
 Manage friend requests.
 
-- Request Body:
+POST /api/nfmgr
 
-info: add string
-username: Recipient username
+### Request Body
 
-- Response:
+| Name | Type | Description |
+| --- | --- | --- |
+| info | string | "add" or "accept" |
+| username | string | Recipient username |
 
-200: Request success
-404: User not found
+### Responses
 
-```GET /api/newfriends```
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 200 | Request success |  |  |
+| 404 | User not found |  |  |
+
+## GET /api/newfriends
 
 Get list of pending friend requests.
 
-- Response:
+GET /api/newfriends
 
-200: Array of friend request objects
-401: Unauthorized
+### Responses
 
-User Info
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 200 | Array of friend request objects |  | Array of friend request objects |
+| 401 | Unauthorized |  |  |
 
-```GET /api/info```
+## GET /api/info
 
 Get user profile information.
 
-- Request Header:
+GET /api/info
 
-Authorization: JWT token
+### Request Headers
 
-- Response:
+| Name | Type | Description |
+| --- | --- | --- |
+| Authorization | string | JWT token |
 
-200: User info object
-401: Invalid token
+### Responses
 
-File Management
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 200 | User info object |  | User info object |
+| 401 | Invalid token |  |  |
 
-```POST /api/file/save```
+## POST /api/file/save
 
 Save a file.
 
-- Request Body:
+POST /api/file/save
 
-file: File data
-path: File path
-filename: Filename
+### Request Body
 
-- Response:
+| Name | Type | Description |
+| --- | --- | --- |
+| file | binary | File data |
+| path | string | File path |
+| filename | string | Filename |
 
-201: File saved
-500: Error saving file
+### Responses
 
-```GET /api/file/get```
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 201 | File saved |  |  |
+| 400 | Invalid request |  |  |
+| 500 | Error saving file |  |  |
+
+## GET /api/file/get
 
 Get a file.
 
-- Request Parameter:
+GET /api/file/get
 
-filePath: Path of file on server
+### Request Parameters
 
-Response:
+| Name | Type | Description |
+| --- | --- | --- |
+| filePath | string | Path of file on server |
 
-200: File data
-404: File not found
+### Responses
+
+| HTTP Status Code | Meaning | Description | Data schema |
+| --- | --- | --- | --- |
+| 200 | File data |  | File data |
+| 404 | File not found |  |  |
+
+## POST upload
+
+POST /api/upload
+
+> Body Parameters
+
+```yaml
+image: string
+
+```
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» image|body|string(binary)| yes |none|
+
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Success|Inline|
+
+### Responses Data Schema
+
+
+## POST commands
+
+POST /api/commands
+
+> Body Parameters
+
+```json
+{
+  "commands": "1",
+  "params": [
+    "",
+    ""
+  ]
+}
+```
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» commands|body|string| yes |none|
+|» params|body|[string]| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Success|Inline|
+
+### Responses Data Schema
+
+## POST lock
+
+POST /api/file/lock
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|filename|query|string| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Success|Inline|
+
+### Responses Data Schema
+
