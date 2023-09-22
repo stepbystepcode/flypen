@@ -55,13 +55,13 @@ mkdir build
 ./run.sh
 ```
 ## API Documentation
-See API.md for details on APIs for authentication, user management, documents, etc.
+See [API.md](API.md) for details on APIs for authentication, user management, documents, etc.
 
 ## Contributing
 See CONTRIBUTING.md for contribution guidelines.
 
 ## License
-This project is licensed under the MIT License. See LICENSE for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Contact
 For any questions, please reach out at 202202501110@email.sxu.edu.cn
