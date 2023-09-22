@@ -13,6 +13,7 @@ void getPicture(const HttpRequestPtr &req, std::function<void(const HttpResponse
 void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
 
 void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+void return_status(std::string result);
 
 // std::string
 #endif
