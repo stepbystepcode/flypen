@@ -55,7 +55,7 @@ mkdir build
 ./run.sh
 ```
 ## API Documentation
-See API.md for details on APIs for authentication, user management, documents, etc.
+See [API.md](API.md) for details on APIs for authentication, user management, documents, etc.
 
 ## Contributing
 See CONTRIBUTING.md for contribution guidelines.
