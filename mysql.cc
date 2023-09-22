@@ -6,28 +6,21 @@
 
 void sql_unlocked(std::string DeleteName)
 {
-    try
-    {
+    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
+    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    con->setSchema("flypen");
+    sql::Statement *stmt = con->createStatement();
+    try{
         std::string filename = DeleteName;
-
-        // open MySQL
-        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
-        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
-        con->setSchema("flypen");
-
-        sql::Statement *stmt = con->createStatement();
-
         std::string DeleteQuery = "DELETE FROM file WHERE filename = " + DeleteName;
-
         int rowsDelete = stmt->executeUpdate(DeleteQuery);
-
-        delete stmt;
-        delete con;
     }
     catch (sql::SQLException &e)
     {
         std::cerr << "SQL Exception: in sql_unlocked() function" << e.what() << std::endl;
     }
+    delete stmt;
+    delete con;
 }
 
 // relate to chat
@@ -58,11 +51,11 @@ int lockcheck(std::string filename){
         if(resultSet->getString("filename")==filename) return 1;
 
     }
-        std::string changestate ="INSERT INTO file(filename) VALUES (?)";
-        sql::PreparedStatement *changestatement =con->prepareStatement(changestate);
-        changestatement->setString(1,filename);
-        changestatement->executeUpdate(); 
-        return 0;
+    std::string changestate ="INSERT INTO file(filename) VALUES (?)";
+    sql::PreparedStatement *changestatement =con->prepareStatement(changestate);
+    changestatement->setString(1,filename);
+    changestatement->executeUpdate(); 
+    return 0;
 }
 void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, sql::Connection *con)
 {
