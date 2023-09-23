@@ -1,5 +1,5 @@
 <p align="center">
-![logo](https://github-production-user-asset-6210df.s3.amazonaws.com/57084184/270096729-18a461fc-e7ed-4bda-881d-da808878d525.svg)
+<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/57084184/270096729-18a461fc-e7ed-4bda-881d-da808878d525.svg"/>
 </p>
 <h2 align="center">Flypen</h2>
 <p align="center">
