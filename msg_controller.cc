@@ -42,6 +42,7 @@ void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
 // get message history
 void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
+    auto check_type = req->getParameter("type");
     Json::Value res_json;
     Json::Reader reader;
     std::string me;
@@ -51,7 +52,7 @@ void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &
     if (jwtVerify(req))
     {
         me = jwtDecrypt(req->getHeader("Authorization").substr(7));
-        auto output = writer.write(sql_find_my_msg(me));
+        auto output = writer.write(sql_find_my_msg(me,check_type));
         res->setBody(output);
     }
     else
