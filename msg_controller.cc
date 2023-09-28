@@ -30,16 +30,21 @@ void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
         sql_addhistory(sender, receiver, content, "0");
         
         std::string msg = req_json["content"].asString();
+        res_json["code"] = 200;
+        res_json["massage"] = "Massage Send Success";
         auto output = writer.write(res_json);
         res->setBody(output);
     }
     else
     {
-        res->setBody("No Authorization");
+        res_json["massage"] = "No Authorization";
+        res_json["code"] = 401; 
     }
+    auto output = writer.write(res_json);
+    res->setBody(output);
     callback(res);
 }
-// get message history
+// get message history or new message
 void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto check_type = req->getParameter("type");
@@ -52,19 +57,27 @@ void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &
     if (jwtVerify(req))
     {
         me = jwtDecrypt(req->getHeader("Authorization").substr(7));
-        auto output = writer.write(sql_find_my_msg(me,check_type));
-        res->setBody(output);
+        res_json["massage"] = sql_find_my_msg(me,check_type);
+        res_json["code"] = 200;
+        
     }
     else
     {
-        res->setBody("No Authorization");
+        //res->setBody("No Authorization");
+        res_json["code"] = 401;
+
     }
+    auto output = writer.write(res_json);
+    res->setBody(output);
+
     callback(res);
 }
 // request new friend or cancel request
 void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto res = HttpResponse::newHttpResponse();
+    Json::Value res_json;
+    Json::FastWriter writer;
     res->addHeader("Access-Control-Allow-Origin", "*");
     if (jwtVerify(req))
     {
@@ -77,22 +90,34 @@ void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpRe
             if (sql_findexist(receiver))
             {
                 sql_addrequest(sender, receiver);
-                res->setBody("Success");
+                res_json["code"] = 200;
+                res_json["massage"] = "Friend Add Success";
+                //res->setBody("Success");
             }
             else
-                res->setBody("No this body");
+            {
+                res_json["code"] = 404;
+                res_json["massage"] = "No this user";
+                //res->setBody("No this body");
+            }
+                //res->setBody("No this body");
         }
         else
         {
             sql_delete_operation(sender, receiver);
-
-            res->setBody("Success");
+            res_json["code"] = 200;
+            res_json["massage"] = " Delete Operation Success";
+            //res->setBody("Success");
         }
     }
     else
     {
-        res->setBody("No Authorization");
+        res_json["code"] = 401;
+        res_json["massage"] = "No Authorization ";
+        //res->setBody("No Authorization");
     }
+    auto output = writer.write(res_json);
+    res->setBody(output);
     callback(res);
 }
 // handle new friend request
