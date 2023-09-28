@@ -1,4 +1,6 @@
-<p align="center"><a href="#"><img width="100" src="https://s2.loli.net/2023/09/22/WsZuGM3S49DA8we.jpg" alt="Python logo"></a></p>
+<p align="center">
+<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/57084184/270096729-18a461fc-e7ed-4bda-881d-da808878d525.svg"/>
+</p>
 <h2 align="center">Flypen</h2>
 <p align="center">
   <!-- <a href="https://travis-ci.com/github/ybygjylj/habits-apriori/"><img src="https://travis-ci.com/ybygjylj/habits-apriori.svg?branch=master" alt="Build Status"></a> -->

@@ -1,138 +1,437 @@
 # API Documentation
-## User Management
+# msg
 
-```POST /api/signup```
+## POST chat
 
-Register a new user account.
+POST /api/chat
 
-- Request Body:
+> Body Parameters
 
-username: Username string
-password: Password string
+```json
+{
+  "content": "12345",
+  "receiver": "lglglglgy"
+}
+```
 
-- Response:
+### Params
 
-201: User created successfully
-409: Username already exists
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» content|body|string| yes |none|
+|» receiver|body|string| yes |none|
 
-```POST /api/login```
+> Response Examples
 
-Login with username and password.
+> 200 Response
 
-- Request Body:
+```json
+{}
+```
 
-username: Username string
-password: Password string
+### Responses
 
-- Response:
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
 
-200: Login succeeded
-401: Invalid credentials
+### Responses Data Schema
 
-```POST /api/avatar```
+## POST check
 
-Set user avatar.
+POST /api/check
 
-- Request Body:
+> Response Examples
 
-avatar: Avatar ID int
+> 200 Response
 
-- Response:
+```json
+{}
+```
 
-200: Login succeeded
-401: Invalid credentials
+### Responses
 
-## Chat
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
 
-```POST /api/chat```
+### Responses Data Schema
 
-Send a chat message.
+## POST nfmgr
 
-- Request Body:
+POST /api/nfmgr
 
-content: Chat message content
-receiver: receiver username string
+> Body Parameters
 
-- Response:
+```json
+{
+  "username": "lglglglgy",
+  "info": "allow"
+}
+```
 
-200: Message sent
-404: User or chat room not found
+### Params
 
-```POST /api/check```
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» username|body|string| yes |none|
+|» info|body|string| yes |none|
 
-Send a chat message.
+> Response Examples
 
-- Response:
+> 200 Response
 
-200: Message sent
-404: User or chat room not found
+```json
+{}
+```
 
-## Friend Management
+### Responses
 
-```POST /api/nfmgr```
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
 
-Manage friend requests.
+### Responses Data Schema
 
-- Request Body:
+## POST info
 
-info: add string
-username: Recipient username
+POST /api/info
 
-- Response:
+> Body Parameters
 
-200: Request success
-404: User not found
+```json
+{
+  "person": "lglglglgy"
+}
+```
 
-```GET /api/newfriends```
+### Params
 
-Get list of pending friend requests.
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» person|body|string| yes |none|
 
-- Response:
+> Response Examples
 
-200: Array of friend request objects
-401: Unauthorized
+> 200 Response
 
-User Info
+```json
+{}
+```
 
-```GET /api/info```
+### Responses
 
-Get user profile information.
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
 
-- Request Header:
+### Responses Data Schema
 
-Authorization: JWT token
+## POST newfriend
 
-- Response:
+POST /api/newfriend
 
-200: User info object
-401: Invalid token
+### Params
 
-File Management
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|username|query|string| no |none|
+|operation|query|string| no |none|
 
-```POST /api/file/save```
+> Response Examples
 
-Save a file.
+> 200 Response
 
-- Request Body:
+```json
+{}
+```
 
-file: File data
-path: File path
-filename: Filename
+### Responses
 
-- Response:
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|Inline|
 
-201: File saved
-500: Error saving file
+### Responses Data Schema
 
-```GET /api/file/get```
+# file
 
-Get a file.
+## POST save
 
-- Request Parameter:
+POST /api/file/save
 
-filePath: Path of file on server
+> Body Parameters
 
-Response:
+```json
+{
+  "filename": "asdf",
+  "content": "asdf"
+}
+```
 
-200: File data
-404: File not found
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» filename|body|string| yes |none|
+|» content|body|string| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
+
+### Responses Data Schema
+
+## POST upload
+
+POST /api/upload
+
+> Body Parameters
+
+```yaml
+image: string
+
+```
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» image|body|string(binary)| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
+
+### Responses Data Schema
+
+## GET get
+
+GET /api/file/get
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|filename|query|string| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
+
+### Responses Data Schema
+
+## POST commands
+
+POST /api/commands
+
+> Body Parameters
+
+```json
+{
+  "commands": "1",
+  "params": [
+    "",
+    ""
+  ]
+}
+```
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» commands|body|string| yes |none|
+|» params|body|[string]| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
+
+### Responses Data Schema
+
+## POST lock
+
+POST /api/file/lock
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|filename|query|string| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
+
+### Responses Data Schema
+
+# user
+
+## POST login
+
+POST /api/login
+
+> Body Parameters
+
+```json
+{
+  "username": "lj",
+  "password": "XC0Cqe&kieOwtF"
+}
+```
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» username|body|string| yes |none|
+|» password|body|string| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
+
+### Responses Data Schema
+
+## POST signup
+
+POST /api/signup
+
+> Body Parameters
+
+```json
+{
+  "username": "b",
+  "password": "b"
+}
+```
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» username|body|string| yes |none|
+|» password|body|string| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
+
+### Responses Data Schema
+
+## POST avatar
+
+POST /api/avatar
+
+> Body Parameters
+
+```json
+{
+  "avatar": "3"
+}
+```
+
+### Params
+
+|Name|Location|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object| no |none|
+|» avatar|body|string| yes |none|
+
+> Response Examples
+
+> 200 Response
+
+```json
+{}
+```
+
+### Responses
+
+|HTTP Status Code |Meaning|Description|Data schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
+
+### Responses Data Schema
+
+# Data Schema
+
