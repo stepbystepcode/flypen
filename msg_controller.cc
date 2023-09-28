@@ -63,7 +63,7 @@ void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &
     }
     else
     {
-        //res->setBody("No Authorization");
+        res_json["message"] = "No Authorization";
         res_json["code"] = 401;
 
     }
@@ -153,38 +153,17 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
 // get chat info
 void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
-    auto body = req->getBody();
-    Json::Value req_json, res_json;
+    Json::Value res_json;
     Json::Reader reader;
-    std::string bodyStr(body);
-    if (!reader.parse(bodyStr, req_json))
-    {
-        callback(HttpResponse::newHttpResponse());
-        return;
-    }
     std::string me, who_send_me;
     Json::FastWriter writer;
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
-
     if (jwtVerify(req))
     {
         res_json["code"]=200;
         me = jwtDecrypt(req->getHeader("Authorization").substr(7));
-        if (req_json["person"].asString() == "")
-        {
-            res_json["message"] = get_chat_info(me, "");
-            
-            //res->setBody(writer.write(get_chat_info(me, "")));
-        }
-        else
-        {
-            who_send_me = req_json["person"].asString();
-            res_json["message"] = get_chat_info(me, who_send_me);
-
-            //who_send_me = req_json["person"].asString();
-            //res->setBody(writer.write(get_chat_info(me, who_send_me)));
-        }
+        res_json["message"] = get_my_info(me);
     }
     else
     {
