@@ -31,13 +31,13 @@ void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
         
         std::string msg = req_json["content"].asString();
         res_json["code"] = 200;
-        res_json["massage"] = "Massage Send Success";
+        res_json["message"] = "message Send Success";
         auto output = writer.write(res_json);
         res->setBody(output);
     }
     else
     {
-        res_json["massage"] = "No Authorization";
+        res_json["message"] = "No Authorization";
         res_json["code"] = 401; 
     }
     auto output = writer.write(res_json);
@@ -57,7 +57,7 @@ void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &
     if (jwtVerify(req))
     {
         me = jwtDecrypt(req->getHeader("Authorization").substr(7));
-        res_json["massage"] = sql_find_my_msg(me,check_type);
+        res_json["message"] = sql_find_my_msg(me,check_type);
         res_json["code"] = 200;
         
     }
@@ -91,13 +91,13 @@ void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpRe
             {
                 sql_addrequest(sender, receiver);
                 res_json["code"] = 200;
-                res_json["massage"] = "Operation Success";
+                res_json["message"] = "Operation Success";
                 //res->setBody("Success");
             }
             else
             {
                 res_json["code"] = 404;
-                res_json["massage"] = "No this user";
+                res_json["message"] = "No this user";
                 //res->setBody("No this body");
             }
                 //res->setBody("No this body");
@@ -106,14 +106,14 @@ void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpRe
         {
             sql_delete_operation(sender, receiver);
             res_json["code"] = 200;
-            res_json["massage"] = " Delete Operation Success";
+            res_json["message"] = " Delete Operation Success";
             //res->setBody("Success");
         }
     }
     else
     {
         res_json["code"] = 401;
-        res_json["massage"] = "No Authorization ";
+        res_json["message"] = "No Authorization ";
         //res->setBody("No Authorization");
     }
     auto output = writer.write(res_json);
@@ -137,13 +137,13 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
         sql_process_request(sender, receiver, attitude);
         //res->setBody("Success");
         res_json["code"]=200;
-        res_json["massage"]="Friends "+attitude+" Success";
+        res_json["message"]="Friends "+attitude+" Success";
     }
     else
     {
         //res->setBody("No Authorization");
         res_json["code"]=401;
-        res_json["massage"]="No Authorization";
+        res_json["message"]="No Authorization";
     }
     auto output = writer.write(res_json);
     res->setBody(output);
@@ -173,14 +173,14 @@ void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
         me = jwtDecrypt(req->getHeader("Authorization").substr(7));
         if (req_json["person"].asString() == "")
         {
-            res_json["massage"] = get_chat_info(me, "");
+            res_json["message"] = get_chat_info(me, "");
             
             //res->setBody(writer.write(get_chat_info(me, "")));
         }
         else
         {
             who_send_me = req_json["person"].asString();
-            res_json["massage"] = get_chat_info(me, who_send_me);
+            res_json["message"] = get_chat_info(me, who_send_me);
 
             //who_send_me = req_json["person"].asString();
             //res->setBody(writer.write(get_chat_info(me, who_send_me)));
@@ -190,7 +190,7 @@ void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
     {
         //res->setBody("No Authorization");
         res_json["code"]=401;
-        res_json["massage"]="No Authorization";
+        res_json["message"]="No Authorization";
     }
     auto output = writer.write(res_json);
     res->setBody(output);
