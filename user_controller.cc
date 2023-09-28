@@ -7,7 +7,7 @@
 #include "msg_controller.h"
 using namespace drogon;
 
-typedef std::string (*HandlerFunc)(const Json::Value&);
+typedef void (*HandlerFunc)(const Json::Value&, std::string*, int*);
 
 void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, HandlerFunc handler)
 {
@@ -24,9 +24,15 @@ void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr 
     }
 
     Json::FastWriter writer;
-    std::string msg = handler(req_json);
+    
+    std::string msg;
+    int code;
 
+    handler(req_json, &msg, &code);
+    
     res_json["msg"] = msg;
+    res_json["code"] = code;
+
     if (msg.find("Success")!= std::string::npos)
     {
         res_json["token"] = jwtGen(req_json);
@@ -60,21 +66,33 @@ std::string sha256(const std::string str)
   return ss.str();
 }
 
-std::string registerUser(const Json::Value& req_json)
+void registerUser(const Json::Value& req_json, std::string* msg, int* code)
  {
     if (sql_check(req_json["username"].asString()))
     {
         sql_add(req_json["username"].asString(), sha256(req_json["password"].asString()), req_json["avatar"].asInt());
-        return "Sign up Success";
+        *msg = "Sign up Success";
+        *code  = 200;
     }
-    return "User already exist";
+    else
+    {
+        *msg = "User already exist";
+        *code = 409;
+    }
 }
 
-std::string loginUser(const Json::Value& req_json)
- {
+void loginUser(const Json::Value& req_json, std::string* msg, int* code)
+{
     if (sql_check(req_json["username"].asString(), sha256(req_json["password"].asString())))
-        return "Login Success";
-    return "Login Failed";
+    {
+        *msg = "Login Success";    
+        *code = 200;
+    }
+    else
+    {
+        *msg = "Login Failed";
+        *code = 401;
+    }
 }
 
 void avatar(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) 
