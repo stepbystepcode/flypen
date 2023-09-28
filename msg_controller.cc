@@ -91,7 +91,7 @@ void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpRe
             {
                 sql_addrequest(sender, receiver);
                 res_json["code"] = 200;
-                res_json["massage"] = "Friend Add Success";
+                res_json["massage"] = "Operation Success";
                 //res->setBody("Success");
             }
             else
@@ -123,6 +123,8 @@ void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpRe
 // handle new friend request
 void request_processing(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
+    Json::Value res_json;
+    Json::FastWriter writer;
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
 
@@ -133,12 +135,18 @@ void request_processing(const HttpRequestPtr &req, std::function<void(const Http
         std::string sender = req->getParameter("username");
         std::string attitude = req->getParameter("info");
         sql_process_request(sender, receiver, attitude);
-        res->setBody("Success");
+        //res->setBody("Success");
+        res_json["code"]=200;
+        res_json["massage"]="Friends "+attitude+" Success";
     }
     else
     {
-        res->setBody("No Authorization");
+        //res->setBody("No Authorization");
+        res_json["code"]=401;
+        res_json["massage"]="No Authorization";
     }
+    auto output = writer.write(res_json);
+    res->setBody(output);
 
     callback(res);
 }
@@ -161,22 +169,30 @@ void info(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
 
     if (jwtVerify(req))
     {
-
+        res_json["code"]=200;
         me = jwtDecrypt(req->getHeader("Authorization").substr(7));
         if (req_json["person"].asString() == "")
         {
-            res->setBody(writer.write(get_chat_info(me, "")));
+            res_json["massage"] = get_chat_info(me, "");
+            
+            //res->setBody(writer.write(get_chat_info(me, "")));
         }
         else
         {
             who_send_me = req_json["person"].asString();
-            res->setBody(writer.write(get_chat_info(me, who_send_me)));
+            res_json["massage"] = get_chat_info(me, who_send_me);
+
+            //who_send_me = req_json["person"].asString();
+            //res->setBody(writer.write(get_chat_info(me, who_send_me)));
         }
     }
     else
     {
-        res->setBody("No Authorization");
+        //res->setBody("No Authorization");
+        res_json["code"]=401;
+        res_json["massage"]="No Authorization";
     }
-
+    auto output = writer.write(res_json);
+    res->setBody(output);
     callback(res);
 }
