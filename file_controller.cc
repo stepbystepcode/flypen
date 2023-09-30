@@ -59,7 +59,6 @@ std::string shell_commands(const char *cmd)
 void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
 
-    std::cout << "commandsCtrl" << std::endl;
     enum Command
     {
         tree,
@@ -186,12 +185,12 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
 void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto resp = HttpResponse::newHttpResponse();
+    resp->addHeader("Access-Control-Allow-Origin", "*");
     if (jwtVerify(req))
     {
         MultiPartParser fileUpload;
         if (fileUpload.parse(req) != 0 || fileUpload.getFiles().size() != 1)
         {
-            auto resp = HttpResponse::newHttpResponse();
             resp->setBody("Must only be one file");
             resp->setStatusCode(k403Forbidden);
             callback(resp);
@@ -202,33 +201,24 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
         std::string timestamp = std::to_string(ms) + '.' + std::string(file.getFileExtension());
 
-        resp->addHeader("Access-Control-Allow-Origin", "*");
         resp->setBody(timestamp);
         file.save();
         shell_commands(("mv  ./uploads/" + file.getFileName() + " ./uploads/" + timestamp).c_str());
 
         LOG_INFO << "The uploaded file has been saved to the ./uploads "
                     "directory";
-        callback(resp);
     }
     else
     {
         resp->setBody("No Authorization");
     }
+    callback(resp);
 }
 
 void getPicture(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     std::string filename = req->getParameter("filename");
     auto resp = HttpResponse::newFileResponse("./uploads/" + filename);
-
-    if (jwtVerify(req))
-    {
-        resp->addHeader("Access-Control-Allow-Origin", "*");
-        callback(resp);
-    }
-    else
-    {
-        resp->setBody("No Authorization");
-    }
+    resp->addHeader("Access-Control-Allow-Origin", "*");
+    callback(resp);
 }
