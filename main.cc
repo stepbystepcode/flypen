@@ -37,7 +37,7 @@ int main()
     drogon::app().registerHandler("/api/file/commands", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { commandsCtrl(req, std::move(callback)); });
     drogon::app().registerHandler("/api/file/lock", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
-                                  {add_lock(req, std::move(callback));});
+                                  { add_lock(req, std::move(callback)); });
     drogon::app().setUploadPath("./uploads").run();
     return 0;
 }

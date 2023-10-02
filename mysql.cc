@@ -315,68 +315,67 @@ Json::Value get_my_info(std::string me)
         sql::Connection *con;
         con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
-            if (!me.empty())
+        if (!me.empty())
+        {
+            std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
+            sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
+            prepStmt->setString(1, me);
+
+            sql::ResultSet *res = prepStmt->executeQuery();
+
+            if (res->next())
             {
-                std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
-                sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-                prepStmt->setString(1, me);
+                Json::Value user;
+                int avatar = res->getInt("avatar");
+                std::string friends = res->getString("friends");
+                std::string req = res->getString("req");
 
-                sql::ResultSet *res = prepStmt->executeQuery();
-
-                if (res->next())
+                // 使用lambda函数来查询用户信息
+                auto fetchUserInfo = [&](const std::string &token) -> Json::Value
                 {
-                    Json::Value user;
-                    int avatar = res->getInt("avatar");
-                    std::string friends = res->getString("friends");
-                    std::string req = res->getString("req");
-
-                    // 使用lambda函数来查询用户信息
-                    auto fetchUserInfo = [&](const std::string &token) -> Json::Value
+                    Json::Value info;
+                    info["username"] = token;
+                    std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
+                    sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
+                    prepStmt->setString(1, token);
+                    sql::ResultSet *res = prepStmt->executeQuery();
+                    if (res->next())
                     {
-                        Json::Value info;
-                        info["username"] = token;
-                        std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
-                        sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-                        prepStmt->setString(1, token);
-                        sql::ResultSet *res = prepStmt->executeQuery();
-                        if (res->next())
-                        {
-                            info["avatar"] = res->getInt("avatar");
-                        }
-                        return info;
-                    };
-
-                    Json::Value friends_array(Json::arrayValue);
-                    Json::Value req_array(Json::arrayValue);
-                    std::stringstream sf(friends);
-                    std::stringstream sr(req);
-                    std::string token;
-
-                    // 处理好友列表
-                    while (std::getline(sf, token, ','))
-                    {
-                        Json::Value afriend = fetchUserInfo(token);
-                        friends_array.append(afriend);
+                        info["avatar"] = res->getInt("avatar");
                     }
+                    return info;
+                };
 
-                    // 处理请求列表
-                    while (std::getline(sr, token, ','))
-                    {
-                        Json::Value areq = fetchUserInfo(token);
-                        req_array.append(areq);
-                    }
+                Json::Value friends_array(Json::arrayValue);
+                Json::Value req_array(Json::arrayValue);
+                std::stringstream sf(friends);
+                std::stringstream sr(req);
+                std::string token;
 
-                    user["avatar"] = avatar;
-                    user["friends"] = friends_array;
-                    user["req"] = req_array;
-
-                    Json::StreamWriterBuilder builder;
-                    std::string userJson = Json::writeString(builder, user);
-
-                    json[me] = user;
+                // 处理好友列表
+                while (std::getline(sf, token, ','))
+                {
+                    Json::Value afriend = fetchUserInfo(token);
+                    friends_array.append(afriend);
                 }
+
+                // 处理请求列表
+                while (std::getline(sr, token, ','))
+                {
+                    Json::Value areq = fetchUserInfo(token);
+                    req_array.append(areq);
+                }
+
+                user["avatar"] = avatar;
+                user["friends"] = friends_array;
+                user["req"] = req_array;
+
+                Json::StreamWriterBuilder builder;
+                std::string userJson = Json::writeString(builder, user);
+
+                json[me] = user;
             }
-        
+        }
     }
     catch (sql::SQLException &e)
     {
@@ -431,7 +430,7 @@ bool sql_check(std::string user, std::string passwd)
 Json::Value sql_find_my_msg(std::string me, std::string connect_type)
 
 {
-    //std::cout << "login user: " << me << std::endl;
+    // std::cout << "login user: " << me << std::endl;
     try
     {
         sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
@@ -474,7 +473,7 @@ Json::Value sql_find_my_msg(std::string me, std::string connect_type)
 
         while (res->next())
         {
-            //update isread to 1
+            // update isread to 1
             if (connect_type == "new")
             {
                 id = res->getInt("id");
