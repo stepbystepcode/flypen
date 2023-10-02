@@ -7,12 +7,12 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-std:: string  return_status(std::string result,std::string command )
+std::string return_status(std::string result, std::string command)
 {
     if (result != "")
         result = "success";
     else
-        result = " error in :"+command;
+        result = " error in :" + command;
     return result;
 }
 void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
@@ -83,12 +83,12 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
         break;
     case cp:
         result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-        result = return_status(result,"cp");
+        result = return_status(result, "cp");
 
         break;
     case mv:
         result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-        result = return_status(result,"mv");
+        result = return_status(result, "mv");
         break;
     case rm:
         if (params1.find("..") != std::string::npos)
@@ -97,11 +97,11 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
             break;
         }
         result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-        result = return_status(result,"rm");
+        result = return_status(result, "rm");
         break;
     case mkdir:
         result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-        result = return_status(result,"mkdir");
+        result = return_status(result, "mkdir");
         break;
     case touch:
         if ("" == shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()))
