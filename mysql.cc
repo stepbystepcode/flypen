@@ -304,10 +304,9 @@ void sql_add(std::string username, std::string passwd, int avatar)
     }
 }
 
-Json::Value get_chat_info(std::string me, std::string who_send_me)
+Json::Value get_my_info(std::string me)
 {
     Json::Value json;
-    std::string send[2] = {me, who_send_me};
 
     try
     {
@@ -316,14 +315,11 @@ Json::Value get_chat_info(std::string me, std::string who_send_me)
         sql::Connection *con;
         con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
-
-        for (int i = 0; i < 2; i++)
-        {
-            if (!send[i].empty())
+            if (!me.empty())
             {
                 std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
                 sql::PreparedStatement *prepStmt = con->prepareStatement(sql);
-                prepStmt->setString(1, send[i]);
+                prepStmt->setString(1, me);
 
                 sql::ResultSet *res = prepStmt->executeQuery();
 
@@ -377,10 +373,10 @@ Json::Value get_chat_info(std::string me, std::string who_send_me)
                     Json::StreamWriterBuilder builder;
                     std::string userJson = Json::writeString(builder, user);
 
-                    json[send[i]] = user;
+                    json[me] = user;
                 }
             }
-        }
+        
     }
     catch (sql::SQLException &e)
     {
@@ -486,7 +482,7 @@ Json::Value sql_find_my_msg(std::string me, std::string connect_type)
                 updateStmt->setInt(1, id);
                 updateStmt->executeUpdate();
                 delete updateStmt;
-                std::cout<<"change"<<std::endl;
+                // std::cout<<"change"<<std::endl;
             }
 
             Json::Value item;

@@ -27,7 +27,7 @@ POST /api/chat
 > 200 Response
 
 ```json
-{"code":200,"massage":"Massage Send Success"}
+{}
 ```
 
 ### Responses
