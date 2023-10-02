@@ -25,13 +25,6 @@ int main()
                                   { friend_operation(req, std::move(callback)); });
     drogon::app().registerHandler("/api/info", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { info(req, std::move(callback)); });
-
-
-    // drogon::app().registerHandler("/api/file/tree", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
-    //                               { genTree(req, std::move(callback)); });
-    // drogon::app().registerHandler("/api/file/cat", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
-    //                               { catFile(req, std::move(callback)); });
-
     drogon::app().registerHandler("/api/file/save", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { saveFile(req, std::move(callback)); });
     drogon::app().registerHandler("/api/avatar", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
@@ -41,13 +34,10 @@ int main()
     drogon::app().registerHandler("/api/file/get", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { getPicture(req, std::move(callback)); },
                                   {Get});
-
     drogon::app().registerHandler("/api/file/commands", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { commandsCtrl(req, std::move(callback)); });
-
     drogon::app().registerHandler("/api/file/lock", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   {add_lock(req, std::move(callback));});
-
     drogon::app().setUploadPath("./uploads").run();
     return 0;
 }
