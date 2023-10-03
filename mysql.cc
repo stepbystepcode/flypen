@@ -424,7 +424,7 @@ bool sql_check(std::string user, std::string passwd)
         std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 
-    std::cout << result << std::endl;
+  //  std::cout << result << std::endl;
     return result;
 }
 Json::Value sql_find_my_msg(std::string me, std::string connect_type)
@@ -481,7 +481,7 @@ Json::Value sql_find_my_msg(std::string me, std::string connect_type)
                 updateStmt->setInt(1, id);
                 updateStmt->executeUpdate();
                 delete updateStmt;
-                // std::cout<<"change"<<std::endl;
+                // std::cout <<"change"<<std::endl;
             }
 
             Json::Value item;
