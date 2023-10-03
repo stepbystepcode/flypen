@@ -63,10 +63,13 @@ fi
     else
         echo "-- build folder already exists "
     fi
+# 获取机器的核心数
+ CORES=$(nproc)
+ echo "The machine has $CORES cores."
  cd build
  cmake ..
  make clean 
- make -j16
+ make -j$CORES-1
  echo "-- Working in the background..."
  spin "Running ..." &
  SPIN_PID=$!
