@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "-- ███████╗██╗░░░░░██╗░░░██╗██████╗░███████╗███╗░░██╗--"
+echo "-- ███████╗██╗░░░░░██╗░░░██╗██████╗░███████╗███╗░░██╗--" 
 echo "-- ██╔════╝██║░░░░░╚██╗░██╔╝██╔══██╗██╔════╝████╗░██║--"
 echo "-- █████╗░░██║░░░░░░╚████╔╝░██████╔╝█████╗░░██╔██╗██║--"
 echo "-- ██╔══╝░░██║░░░░░░░╚██╔╝░░██╔═══╝░██╔══╝░░██║╚████║--"
@@ -64,12 +64,14 @@ fi
         echo "-- build folder already exists "
     fi
 # 获取机器的核心数
- CORES=$(nproc)
+ CORES=$(nproc) 
  echo "The machine has $CORES cores."
+ CORES=$((CORES-1))
  cd build
  cmake ..
  make clean 
- make -j$CORES-1
+ echo "make -j$CORES"
+ make -j$CORES
  echo "-- Working in the background..."
  spin "Running ..." &
  SPIN_PID=$!
