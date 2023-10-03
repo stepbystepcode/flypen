@@ -477,6 +477,8 @@ Json::Value sql_find_my_msg(std::string me, std::string connect_type)
             if (connect_type == "new")
             {
                 id = res->getInt("id");
+                if(res->getString("sender") ==me)
+                    continue;
                 sql::PreparedStatement *updateStmt = con->prepareStatement(sql0To1);
                 updateStmt->setInt(1, id);
                 updateStmt->executeUpdate();
