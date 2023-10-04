@@ -22,8 +22,10 @@ spin() {
 if [ ! -x "$(command -v dg_ctl)" ]; then
     echo "-- drogon does not exist, downloading..."
     git submodule update --init
+    sleep 2
     cd drogon
     git submodule update --init
+    sleep 2
     mkdir build
     cd build
     cmake ..
