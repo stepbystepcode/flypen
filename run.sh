@@ -71,6 +71,7 @@ else
     #检测是否存在mysql-connector文件夹
     if [ ! -d "mysql-connector" ]; then
         echo "-- mysql-connector folder does not exist, downloading..."
+        rm -rf mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
         wget https://cdn.mysql.com//Downloads/Connector-C++/mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
         #下载是否成功
         if [ $? -ne 0 ]; then
