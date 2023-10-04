@@ -258,13 +258,14 @@ void sql_addhistory(std::string sender, std::string receiver, std::string messag
         sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
 
-        std::string classMysql = "INSERT INTO chat(content, isread, sender, receiver, time) VALUES (?, ?, ?, ?, NOW())";
+        std::string classMysql = "INSERT INTO chat(content, sender_isread,receiver_isread, sender, receiver, time) VALUES (?, ?, ? , ?, ?, NOW())";
         sql::PreparedStatement *insertData = con->prepareStatement(classMysql);
 
         insertData->setString(1, message);
         insertData->setString(2, isread);
-        insertData->setString(3, sender);
-        insertData->setString(4, receiver);
+        insertData->setString(3, isread);
+        insertData->setString(4, sender);
+        insertData->setString(5, receiver);
         insertData->executeUpdate();
 
         delete insertData;
