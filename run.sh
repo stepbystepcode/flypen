@@ -31,7 +31,7 @@ if [ ! -x "$(command -v dg_ctl)" ]; then
     cmake ..
     echo "-- make -j$CORES"
     make -j$CORES
-    echo $1 | sudo -S make install
+    sudo  make install
     cd ../..
 fi
 #检测/usr/local/include/jwt-cpp/jwt.h是否存在
@@ -44,7 +44,7 @@ if [ ! -f "/usr/local/include/jwt-cpp/jwt.h" ]; then
     cmake ..
     echo "-- make -j$CORES"
     make -j$CORES
-    echo $1 | sudo -S make install
+    sudo  make install
     cd ../..
 fi
 
