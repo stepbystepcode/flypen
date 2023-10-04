@@ -23,6 +23,7 @@ if [ ! -x "$(command -v dg_ctl)" ]; then
     echo "-- drogon does not exist, downloading..."
     git submodule update --init
     cd drogon
+    git submodule update --init
     mkdir build
     cd build
     cmake ..
@@ -89,7 +90,6 @@ fi
         echo "-- build folder already exists "
     fi
 # 获取机器的核心数
- CORES=$((CORES-1))
  cd build
  cmake ..
  make clean 
