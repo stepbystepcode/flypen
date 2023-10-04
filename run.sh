@@ -1,12 +1,12 @@
 #!/bin/bash
-echo "-- ███████╗██╗░░░░░██╗░░░██╗██████╗░███████╗███╗░░██╗--" 
-echo "-- ██╔════╝██║░░░░░╚██╗░██╔╝██╔══██╗██╔════╝████╗░██║--"
-echo "-- █████╗░░██║░░░░░░╚████╔╝░██████╔╝█████╗░░██╔██╗██║--"
-echo "-- ██╔══╝░░██║░░░░░░░╚██╔╝░░██╔═══╝░██╔══╝░░██║╚████║--"
-echo "-- ██║░░░░░███████╗░░░██║░░░██║░░░░░███████╗██║░╚███║--"
-echo "-- ╚═╝░░░░░╚══════╝░░░╚═╝░░░╚═╝░░░░░╚══════╝╚═╝░░╚══╝--"
-#is macos
 
+#is macos
+echo "---- C++ Course Design ----"
+
+ CORES=$(nproc) 
+ #最多使用
+echo "-- Using $CORES cores."
+ CORES=$((CORES-1))
 spin() {
     local -a spinner=( "⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏" )
     local str=$1
@@ -18,7 +18,35 @@ spin() {
         done
     done
 }
-
+#检测是否可以执行dg_ctl命令
+if [ ! -x "$(command -v dg_ctl)" ]; then
+    echo "-- drogon does not exist, downloading..."
+    git submodule update --init
+    sleep 2
+    cd drogon
+    git submodule update --init
+    sleep 2
+    mkdir build
+    cd build
+    cmake ..
+    echo "-- make -j$CORES"
+    make -j$CORES
+    sudo  make install
+    cd ../..
+fi
+#检测/usr/local/include/jwt-cpp/jwt.h是否存在
+if [ ! -f "/usr/local/include/jwt-cpp/jwt.h" ]; then
+    echo "-- jwt-cpp does not exist, downloading..."
+    git submodule update --init
+    cd jwt-cpp
+    mkdir build
+    cd build
+    cmake ..
+    echo "-- make -j$CORES"
+    make -j$CORES
+    sudo  make install
+    cd ../..
+fi
 
 if [ "$(uname)" == "Darwin" ]; then
     echo "-- Macos detected"
@@ -43,6 +71,7 @@ else
     #检测是否存在mysql-connector文件夹
     if [ ! -d "mysql-connector" ]; then
         echo "-- mysql-connector folder does not exist, downloading..."
+        rm -rf mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
         wget https://cdn.mysql.com//Downloads/Connector-C++/mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
         #下载是否成功
         if [ $? -ne 0 ]; then
@@ -64,14 +93,22 @@ fi
         echo "-- build folder already exists "
     fi
 # 获取机器的核心数
- CORES=$(nproc) 
- echo "Using $CORES cores."
- CORES=$((CORES-1))
  cd build
  cmake ..
  make clean 
  echo "-- make -j$CORES"
  make -j$CORES
+echo 
+echo "======================================================="
+echo "-- ███████╗██╗░░░░░██╗░░░██╗██████╗░███████╗███╗░░██╗--" 
+echo "-- ██╔════╝██║░░░░░╚██╗░██╔╝██╔══██╗██╔════╝████╗░██║--"
+echo "-- █████╗░░██║░░░░░░╚████╔╝░██████╔╝█████╗░░██╔██╗██║--"
+echo "-- ██╔══╝░░██║░░░░░░░╚██╔╝░░██╔═══╝░██╔══╝░░██║╚████║--"
+echo "-- ██║░░░░░███████╗░░░██║░░░██║░░░░░███████╗██║░╚███║--"
+echo "-- ╚═╝░░░░░╚══════╝░░░╚═╝░░░╚═╝░░░░░╚══════╝╚═╝░░╚══╝--"
+echo "======================================================="
+echo
+sleep 1
  echo "-- Working in the background..."
  spin "Running ..." &
  SPIN_PID=$!
