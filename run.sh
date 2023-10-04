@@ -65,12 +65,12 @@ fi
     fi
 # 获取机器的核心数
  CORES=$(nproc) 
- echo "The machine has $CORES cores."
+ echo "Using $CORES cores."
  CORES=$((CORES-1))
  cd build
  cmake ..
  make clean 
- echo "make -j$CORES"
+ echo "-- make -j$CORES"
  make -j$CORES
  echo "-- Working in the background..."
  spin "Running ..." &
