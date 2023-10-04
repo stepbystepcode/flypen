@@ -441,7 +441,7 @@ Json::Value sql_find_my_msg(std::string me, std::string connect_type)
         //===================    find begin
         // SELECT * FROM chat WHERE (sender = 'lglglglgy' OR receiver = 'lglglglgy') AND isread = 0
         std::string sqlFind_new_connect = "SELECT * FROM chat WHERE sender = ? OR receiver = ?";
-        std::string sqlFind_isread_is_zero = "SELECT * FROM chat WHERE (sender = ? OR receiver = ? ) AND isread = 0";
+        std::string sqlFind_isread_is_zero = "SELECT * FROM chat WHERE (sender = ? AND sender_isread = 0 ) OR ( receiver = ? AND receiver_isread = 0 ) ";
         if (connect_type == "all")
         {
             prepStmt = con->prepareStatement(sqlFind_new_connect);
@@ -461,9 +461,9 @@ Json::Value sql_find_my_msg(std::string me, std::string connect_type)
         sql::ResultSet *res = prepStmt->executeQuery();
 
         //===================    find end and  update begin
-
-        std::string sql0To1 = "UPDATE chat SET isread = 1 WHERE id = ?";
-        int id;
+        std::string sql0To1_sender = "UPDATE chat SET sender_isread = 1 WHERE id = ?";
+        std::string sql0To1_rec = "UPDATE chat SET receiver_isread = 1 WHERE id = ?";
+        
 
         //===================    update end
         Json::Value result;
@@ -476,11 +476,21 @@ Json::Value sql_find_my_msg(std::string me, std::string connect_type)
             // update isread to 1
             if (connect_type == "new")
             {
-                id = res->getInt("id");
-                sql::PreparedStatement *updateStmt = con->prepareStatement(sql0To1);
-                updateStmt->setInt(1, id);
-                updateStmt->executeUpdate();
-                delete updateStmt;
+                int id = res->getInt("id");
+                if (res->getString("sender")==me)
+                {
+                    sql::PreparedStatement *updateStmt = con->prepareStatement(sql0To1_sender);
+                    updateStmt->setInt(1, id);
+                    updateStmt->executeUpdate();
+                    delete updateStmt;
+                }
+                else
+                {
+                    sql::PreparedStatement *updateStmt = con->prepareStatement(sql0To1_rec);
+                    updateStmt->setInt(1, id);
+                    updateStmt->executeUpdate();
+                    delete updateStmt;
+                }    
                 // std::cout <<"change"<<std::endl;
             }
 
