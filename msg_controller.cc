@@ -1,4 +1,3 @@
-#include <drogon/drogon.h>
 #include <json/json.h>
 #include "jwt_controller.h"
 #include "msg_controller.h"

@@ -1,15 +1,14 @@
 #include "file_controller.h"
 #include "jwt_controller.h"
 #include <json/json.h>
-#include <stdio.h>
+#include <cstdio>
 #include <mysql.h>
-#include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <string>
-std::string return_status(std::string result, std::string command,Json::Value &res_json)
+std::string return_status(std::string result, const std::string& command,Json::Value &res_json)
 {
-    if (result != ""){
+    if (!result.empty()){
         result = command + " success";
         res_json["code"] = 200;
     }
@@ -42,13 +41,13 @@ void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
 std::string shell_commands(const char *cmd)
 {
     char buffer[1280];
-    std::string result = "";
+    std::string result;
     FILE *pipe = popen(cmd, "r");
     if (!pipe)
         throw std::runtime_error("popen() failed!");
     try
     {
-        while (fgets(buffer, sizeof buffer, pipe) != NULL)
+        while (fgets(buffer, sizeof buffer, pipe) != nullptr)
         {
             result += buffer;
         }
@@ -115,9 +114,10 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
             result = return_status(result, "mkdir",res_json);
             break;
         case touch:
-            if ("" == shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()))
+            if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()).empty())
             {
-                result = shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
+                shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
+                //result = shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
                 result = "success";
                 res_json["code"] = 200;
             }

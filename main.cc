@@ -1,12 +1,9 @@
 
-#include <drogon/drogon.h>
 #include "msg_controller.h"
 #include "user_controller.h"
 #include "file_controller.h"
-#include <drogon/WebSocketController.h>
 
 using namespace drogon;
-std::unordered_map<std::string, WebSocketConnectionPtr> clientTable;
 int main()
 {
     drogon::app().addListener("0.0.0.0", 8081);
