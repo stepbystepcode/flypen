@@ -9,7 +9,7 @@ using namespace drogon;
 typedef void (*HandlerFunc)(const Json::Value &, std::string *, int *);
 void userInit(std::string username)
 {
-    std::string sender="Flypen Team";
+    std::string sender="FlypenTeam";
     std::string message="Welcome to flypen! We are glad to see you here!";
     sql_addhistory( sender, username, message, "0");
     return ;
