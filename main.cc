@@ -1,16 +1,13 @@
 
-#include <drogon/drogon.h>
 #include "msg_controller.h"
 #include "user_controller.h"
 #include "file_controller.h"
-#include <drogon/WebSocketController.h>
 
 using namespace drogon;
-std::unordered_map<std::string, WebSocketConnectionPtr> clientTable;
 int main()
 {
     drogon::app().addListener("0.0.0.0", 8081);
-    std::cout << "ready" << std::endl;
+    //std::cout << "ready" << std::endl;
     drogon::app().registerHandler("/api/signup", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { Handle(req, std::move(callback), registerUser); });
     drogon::app().registerHandler("/api/login", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
@@ -25,13 +22,6 @@ int main()
                                   { friend_operation(req, std::move(callback)); });
     drogon::app().registerHandler("/api/info", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { info(req, std::move(callback)); });
-
-
-    // drogon::app().registerHandler("/api/file/tree", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
-    //                               { genTree(req, std::move(callback)); });
-    // drogon::app().registerHandler("/api/file/cat", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
-    //                               { catFile(req, std::move(callback)); });
-
     drogon::app().registerHandler("/api/file/save", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { saveFile(req, std::move(callback)); });
     drogon::app().registerHandler("/api/avatar", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
@@ -41,13 +31,10 @@ int main()
     drogon::app().registerHandler("/api/file/get", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { getPicture(req, std::move(callback)); },
                                   {Get});
-
     drogon::app().registerHandler("/api/file/commands", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { commandsCtrl(req, std::move(callback)); });
-
     drogon::app().registerHandler("/api/file/lock", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
-                                  {add_lock(req, std::move(callback));});
-
+                                  { add_lock(req, std::move(callback)); });
     drogon::app().setUploadPath("./uploads").run();
     return 0;
 }

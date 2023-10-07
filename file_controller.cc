@@ -1,18 +1,23 @@
 #include "file_controller.h"
 #include "jwt_controller.h"
 #include <json/json.h>
-#include <stdio.h>
+#include <cstdio>
 #include <mysql.h>
-#include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <string>
-std:: string  return_status(std::string result,std::string command )
+std::string return_status(std::string result, const std::string& command,Json::Value &res_json)
 {
-    if (result != "")
-        result = "success";
+    if (!result.empty()){
+        result = command + " success";
+        res_json["code"] = 200;
+    }
     else
-        result = " error in :"+command;
+    {
+        result = " Error in :" + command;
+        res_json["code"] = 400;
+    }
+        
     return result;
 }
 void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
@@ -36,13 +41,13 @@ void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
 std::string shell_commands(const char *cmd)
 {
     char buffer[1280];
-    std::string result = "";
+    std::string result;
     FILE *pipe = popen(cmd, "r");
     if (!pipe)
         throw std::runtime_error("popen() failed!");
     try
     {
-        while (fgets(buffer, sizeof buffer, pipe) != NULL)
+        while (fgets(buffer, sizeof buffer, pipe) != nullptr)
         {
             result += buffer;
         }
@@ -58,74 +63,91 @@ std::string shell_commands(const char *cmd)
 
 void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
-
-    std::cout << "commandsCtrl" << std::endl;
-    enum Command
-    {
-        tree,
-        cp,
-        mv,
-        rm,
-        mkdir,
-        touch,
-        cat
-    } command;
-    char *pathvar;
-    pathvar = getenv("PWD");
-
-    command = static_cast<Command>(stoi(req->getJsonObject()->get("command", "").asString()));
-    std::string params1 = req->getJsonObject()->get("params", "")[0].asString();
-    std::string params2 = req->getJsonObject()->get("params", "")[1].asString();
+    auto res = HttpResponse::newHttpResponse();
     std::string result;
-    switch (command)
-    {
-    case tree:
-        result = shell_commands(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
-        break;
-    case cp:
-        result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-        result = return_status(result,"cp");
-
-        break;
-    case mv:
-        result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-        result = return_status(result,"mv");
-        break;
-    case rm:
-        if (params1.find("..") != std::string::npos)
+    Json::Value res_json;
+    Json::FastWriter writer;
+    res->addHeader("Access-Control-Allow-Origin", "*");
+    if (jwtVerify(req)){                
+        enum Command
         {
-            result = "error:result in wrong directory";
+            tree,
+            cp,
+            mv,
+            rm,
+            mkdir,
+            touch,
+            cat
+        } command;
+        char *pathvar;
+        pathvar = getenv("PWD");
+
+        command = static_cast<Command>(stoi(req->getJsonObject()->get("command", "").asString()));
+        std::string params1 = req->getJsonObject()->get("params", "")[0].asString();
+        std::string params2 = req->getJsonObject()->get("params", "")[1].asString();
+        switch (command)
+        {
+        case tree:
+            result = shell_commands(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
+            break;
+        case cp:
+            result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+            result = return_status(result, "cp",res_json);
+
+            break;
+        case mv:
+            result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+            result = return_status(result, "mv",res_json);
+            break;
+        case rm:
+            if (params1.find("..") != std::string::npos)
+            {
+                result = "error:result in wrong directory";
+                res_json["code"] = 400;
+                break;
+            }
+            result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+            result = return_status(result, "rm",res_json);
+            break;
+        case mkdir:
+            result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+            result = return_status(result, "mkdir",res_json);
+            break;
+        case touch:
+            if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()).empty())
+            {
+                shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
+                //result = shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
+                result = "success";
+                res_json["code"] = 200;
+            }
+
+            else
+            {
+                result = "error:file already exists";
+                res_json["code"] = 400;
+            }
+            break;
+        case cat:
+            result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
+            res_json["code"] = 200;
+            break;
+        default:
+            result = "error:command not found";
+            res_json["code"] = 400;
             break;
         }
-        result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-        result = return_status(result,"rm");
-        break;
-    case mkdir:
-        result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-        result = return_status(result,"mkdir");
-        break;
-    case touch:
-        if ("" == shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()))
-        {
-            result = shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
-            result = "success";
-        }
-
-        else
-        {
-            result = "error:file already exists";
-        }
-        break;
-    case cat:
-        result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
-        break;
-    default:
-        result = "error:command not found";
-        break;
     }
-    auto res = HttpResponse::newHttpResponse();
+    else
+    {
+        result = "No Authorization";
+        res_json["code"] = 401;
+    }
+    res_json["message"] = result;
+    
     res->addHeader("Access-Control-Allow-Origin", "*");
-    res->setBody(result);
+    auto output = writer.write(res_json);
+    res->setBody(output);
     callback(res);
 }
 // void genTree(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
@@ -153,6 +175,7 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
 void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto res = HttpResponse::newHttpResponse();
+    res->addHeader("Access-Control-Allow-Origin", "*");
     if (jwtVerify(req))
     {
         auto body = req->getBody();
@@ -173,7 +196,7 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
 
         sql_unlocked(filename);
 
-        res->addHeader("Access-Control-Allow-Origin", "*");
+        
         res->setBody("success");
         callback(res);
     }
@@ -186,12 +209,12 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
 void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto resp = HttpResponse::newHttpResponse();
+    resp->addHeader("Access-Control-Allow-Origin", "*");
     if (jwtVerify(req))
     {
         MultiPartParser fileUpload;
         if (fileUpload.parse(req) != 0 || fileUpload.getFiles().size() != 1)
         {
-            auto resp = HttpResponse::newHttpResponse();
             resp->setBody("Must only be one file");
             resp->setStatusCode(k403Forbidden);
             callback(resp);
@@ -202,33 +225,24 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
         std::string timestamp = std::to_string(ms) + '.' + std::string(file.getFileExtension());
 
-        resp->addHeader("Access-Control-Allow-Origin", "*");
         resp->setBody(timestamp);
         file.save();
         shell_commands(("mv  ./uploads/" + file.getFileName() + " ./uploads/" + timestamp).c_str());
 
         LOG_INFO << "The uploaded file has been saved to the ./uploads "
                     "directory";
-        callback(resp);
     }
     else
     {
         resp->setBody("No Authorization");
     }
+    callback(resp);
 }
 
 void getPicture(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     std::string filename = req->getParameter("filename");
     auto resp = HttpResponse::newFileResponse("./uploads/" + filename);
-
-    if (jwtVerify(req))
-    {
-        resp->addHeader("Access-Control-Allow-Origin", "*");
-        callback(resp);
-    }
-    else
-    {
-        resp->setBody("No Authorization");
-    }
+    resp->addHeader("Access-Control-Allow-Origin", "*");
+    callback(resp);
 }

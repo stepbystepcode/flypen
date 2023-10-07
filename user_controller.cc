@@ -1,4 +1,3 @@
-#include <drogon/drogon.h>
 #include <json/json.h>
 #include "mysql.h"
 #include <iomanip>
@@ -7,7 +6,7 @@
 #include "msg_controller.h"
 using namespace drogon;
 
-typedef std::string (*HandlerFunc)(const Json::Value&);
+typedef void (*HandlerFunc)(const Json::Value &, std::string *, int *);
 
 void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, HandlerFunc handler)
 {
@@ -17,17 +16,23 @@ void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr 
     Json::Reader reader;
     std::string bodyStr(body);
 
-    if (!reader.parse(bodyStr, req_json)) 
+    if (!reader.parse(bodyStr, req_json))
     {
         callback(HttpResponse::newHttpResponse());
         return;
     }
 
     Json::FastWriter writer;
-    std::string msg = handler(req_json);
+
+    std::string msg;
+    int code;
+
+    handler(req_json, &msg, &code);
 
     res_json["msg"] = msg;
-    if (msg.find("Success")!= std::string::npos)
+    res_json["code"] = code;
+
+    if (msg.find("Success") != std::string::npos)
     {
         res_json["token"] = jwtGen(req_json);
         res_json["username"] = req_json["username"].asString();
@@ -42,52 +47,64 @@ void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr 
     callback(res);
 }
 
-std::string sha256(const std::string str)
+std::string sha256(const std::string& str)
 {
-  unsigned char hash[SHA256_DIGEST_LENGTH];
+    unsigned char hash[SHA256_DIGEST_LENGTH];
 
-  SHA256_CTX sha256;
+    SHA256_CTX sha256;
 
-  SHA256_Init(&sha256);
-  SHA256_Update(&sha256, str.c_str(), str.size());
-  SHA256_Final(hash, &sha256);
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
 
-  std::stringstream ss;
+    std::stringstream ss;
 
-  for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
-    ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash[i]);
-  
-  return ss.str();
+    for (unsigned char i : hash)
+        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(i);
+
+    return ss.str();
 }
 
-std::string registerUser(const Json::Value& req_json)
- {
+void registerUser(const Json::Value &req_json, std::string *msg, int *code)
+{
     if (sql_check(req_json["username"].asString()))
     {
         sql_add(req_json["username"].asString(), sha256(req_json["password"].asString()), req_json["avatar"].asInt());
-        return "Sign up Success";
+        *msg = "Sign up Success";
+        *code = 200;
     }
-    return "User already exist";
+    else
+    {
+        *msg = "User already exist";
+        *code = 409;
+    }
 }
 
-std::string loginUser(const Json::Value& req_json)
- {
+void loginUser(const Json::Value &req_json, std::string *msg, int *code)
+{
     if (sql_check(req_json["username"].asString(), sha256(req_json["password"].asString())))
-        return "Login Success";
-    return "Login Failed";
+    {
+        *msg = "Login Success";
+        *code = 200;
+    }
+    else
+    {
+        *msg = "Login Failed";
+        *code = 401;
+    }
 }
 
-void avatar(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) 
+void avatar(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
 
-    if (jwtVerify(req)) 
-    {
-        std::string receiver = jwtDecrypt(req->getHeader("Authorization").substr(7));
-        set_avatar(receiver, stoi(req->getParameter("avatar")));
-        res->setBody("Success");
-    } else 
+    if (!jwtVerify(req))
         res->setBody("No Authorization");
+
+    std::string receiver = jwtDecrypt(req->getHeader("Authorization").substr(7));
+    set_avatar(receiver, stoi(req->getParameter("avatar")));
+    res->setBody("Success");
+
     callback(res);
 }
