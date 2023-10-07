@@ -95,6 +95,7 @@ void loginUser(const Json::Value &req_json, std::string *msg, int *code)
     {
         *msg = "Login Success";
         *code = 200;
+        std::cout<<"INFO: "<<req_json["username"].asString()<<" login"<<std::endl;
     }
     else
     {

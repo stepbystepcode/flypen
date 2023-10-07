@@ -32,6 +32,7 @@ void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
         std::string msg = req_json["content"].asString();
         res_json["message"] = "message Send Success";
         res_json["code"] = 200;
+        std::cout<<"INFO: "<<sender<<" send "<<msg<<" to "<<receiver<<std::endl;
     }
     else
     {
