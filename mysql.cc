@@ -263,12 +263,13 @@ void sql_add(const std::string& username, const std::string& passwd, int avatar)
         con->setSchema("flypen");
 
         sql::Statement *tool = con->createStatement();
-        std::string classMysql = "INSERT INTO users(username, password, avatar, createtime) VALUES (?, ?, ?, NOW())";
+        std::string classMysql = "INSERT INTO users(username, password, avatar ,friends, createtime) VALUES (?, ?, ?,? , NOW())";
         sql::PreparedStatement *ptool = con->prepareStatement(classMysql);
 
         ptool->setString(1, username);
         ptool->setString(2, passwd);
         ptool->setInt(3, avatar);
+        ptool->setString(4, "FlyPen Team");
         ptool->executeUpdate();
 
         delete ptool;
