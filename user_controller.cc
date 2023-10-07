@@ -11,7 +11,8 @@ void userInit(std::string username)
 {
     std::string sender="Flypen Team";
     std::string message="Welcome to flypen! We are glad to see you here!";
-    sql_addhistory( sender, username, message, 0);
+    sql_addhistory( sender, username, message, "0");
+    return ;
 }
 
 void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, HandlerFunc handler)
