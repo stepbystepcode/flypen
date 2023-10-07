@@ -459,7 +459,7 @@ Json::Value sql_find_my_msg(const std::string& me, const std::string& connect_ty
                     updateStmt->executeUpdate();
                     delete updateStmt;
                 }
-                else
+                if(res->getString("receiver")==me)
                 {
                     sql::PreparedStatement *updateStmt = con->prepareStatement(sql0To1_rec);
                     updateStmt->setInt(1, id);

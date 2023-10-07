@@ -85,57 +85,65 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
         command = static_cast<Command>(stoi(req->getJsonObject()->get("command", "").asString()));
         std::string params1 = req->getJsonObject()->get("params", "")[0].asString();
         std::string params2 = req->getJsonObject()->get("params", "")[1].asString();
-        switch (command)
+        if ((params1.find("..") != std::string::npos) || (params2.find("..") != std::string::npos))
         {
-        case tree:
-            result = shell_commands(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
-            break;
-        case cp:
-            result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-            result = return_status(result, "cp",res_json);
-
-            break;
-        case mv:
-            result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-            result = return_status(result, "mv",res_json);
-            break;
-        case rm:
-            if (params1.find("..") != std::string::npos)
+            result = "error:result in wrong directory";
+            res_json["code"] = 400;
+        }
+        else
+        {
+            switch (command)
             {
-                result = "error:result in wrong directory";
+            case tree:
+                result = shell_commands(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
+                break;
+            case cp:
+                result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+                result = return_status(result, "cp",res_json);
+
+                break;
+            case mv:
+                result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+                result = return_status(result, "mv",res_json);
+                break;
+            case rm:
+                if (params1.find("..") != std::string::npos)
+                {
+                    result = "error:result in wrong directory";
+                    res_json["code"] = 400;
+                    break;
+                }
+                result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+                result = return_status(result, "rm",res_json);
+                break;
+            case mkdir:
+                result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+                result = return_status(result, "mkdir",res_json);
+                break;
+            case touch:
+                if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()).empty())
+                {
+                    shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
+                    //result = shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
+                    result = "success";
+                    res_json["code"] = 200;
+                }
+
+                else
+                {
+                    result = "error:file already exists";
+                    res_json["code"] = 400;
+                }
+                break;
+            case cat:
+                result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
+                res_json["code"] = 200;
+                break;
+            default:
+                result = "error:command not found";
                 res_json["code"] = 400;
                 break;
             }
-            result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-            result = return_status(result, "rm",res_json);
-            break;
-        case mkdir:
-            result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-            result = return_status(result, "mkdir",res_json);
-            break;
-        case touch:
-            if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()).empty())
-            {
-                shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
-                //result = shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
-                result = "success";
-                res_json["code"] = 200;
-            }
-
-            else
-            {
-                result = "error:file already exists";
-                res_json["code"] = 400;
-            }
-            break;
-        case cat:
-            result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
-            res_json["code"] = 200;
-            break;
-        default:
-            result = "error:command not found";
-            res_json["code"] = 400;
-            break;
         }
     }
     else
