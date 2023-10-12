@@ -52,7 +52,7 @@ bool jwtVerify(const drogon::HttpRequestPtr &req)
         }
         catch (const std::exception &e)
         {
-            std::cout << "Wrong token" << std::endl;
+//            std::cout << "Wrong token" << std::endl;
             return false;
         }
     }
