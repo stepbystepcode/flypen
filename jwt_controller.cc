@@ -35,7 +35,7 @@ std::string jwtDecrypt(const std::string &token)
     catch (const std::exception &e)
     {
         // std::cout << "Failed to decrypt JWT: " + std::string(e.what()) << std::endl;
-        // throw std::runtime_error("Failed to decrypt JWT");
+         throw std::runtime_error("Failed to decrypt JWT");
     }
 }
 
