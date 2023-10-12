@@ -317,6 +317,7 @@ Json::Value get_my_info(const std::string& me)
                 int avatar = res->getInt("avatar");
                 std::string friends = res->getString("friends");
                 std::string req = res->getString("req");
+                std::string registerTime = res->getString("createtime");
 
                 // 使用lambda函数来查询用户信息
                 auto fetchUserInfo = [&](const std::string &token) -> Json::Value
@@ -330,6 +331,7 @@ Json::Value get_my_info(const std::string& me)
                     if (res->next())
                     {
                         info["avatar"] = res->getInt("avatar");
+                        info["registerTime"] = std::string (res->getString("createtime"));
                     }
                     delete res;
                     return info;
@@ -356,6 +358,7 @@ Json::Value get_my_info(const std::string& me)
                 }
 
                 user["avatar"] = avatar;
+                user["registerTime"] = registerTime;
                 user["friends"] = friends_array;
                 user["req"] = req_array;
 
