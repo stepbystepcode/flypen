@@ -17,6 +17,7 @@ void sql_unlocked(const std::string& DeleteName)
     {
         std::cerr << "SQL Exception: in sql_unlocked() function" << e.what() << std::endl;
     }
+    con->close();
     delete stmt;
     delete con;
 }
@@ -36,6 +37,10 @@ int sql_findexist(const std::string& receiver)
         if (receiver == resultSet->getString("username"))
             return 1;
     }
+    con->close();
+    delete con;
+    delete readdatament;
+    delete resultSet;
     return 0;
 }
 int lockcheck(const std::string& filename)
@@ -56,6 +61,12 @@ int lockcheck(const std::string& filename)
     sql::PreparedStatement *changestatement = con->prepareStatement(changestate);
     changestatement->setString(1, filename);
     changestatement->executeUpdate();
+
+    con->close(); 
+    delete con;
+    delete readdatament;
+    delete resultSet;
+    delete changestatement;
     return 0;
 }
 void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, sql::Connection *con)
@@ -79,6 +90,7 @@ void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, s
         updateStatement->setString(1, friendlist);
         updateStatement->setString(2, s[i]);
         updateStatement->execute();
+        delete resultSet;
     }
 }
 
@@ -94,6 +106,10 @@ void sql_delete_operation(const std::string& sender, const std::string& receiver
 
     sql::PreparedStatement *readDatament = con->prepareStatement(readdata);
     process(readDatament, s, con);
+
+    con->close();
+    delete con;
+    delete readDatament;
 }
 
 void sql_process_request(const std::string& sender, const std::string& receiver, const std::string& attitude)
@@ -167,6 +183,8 @@ void sql_process_request(const std::string& sender, const std::string& receiver,
         }
         delete[] RS;
     }
+
+    con->close();
     delete updateStatement;
     delete resultSet;
     delete readDatament;
@@ -213,6 +231,7 @@ void sql_addrequest(const std::string& sender, const std::string& receiver)
         delete updateStatement;
     }
 
+    con->close();
     delete resultSet;
     delete readDatament;
     delete tool;
@@ -236,6 +255,7 @@ void sql_addhistory(const std::string& sender, const std::string& receiver, cons
         insertData->setString(5, receiver);
         insertData->executeUpdate();
 
+        con->close();
         delete insertData;
         delete con;
     }
@@ -263,6 +283,7 @@ void sql_add(const std::string& username, const std::string& passwd, int avatar)
         ptool->setString(4, "FlypenTeam");
         ptool->executeUpdate();
 
+        con->close();
         delete ptool;
         delete tool;
         delete con;
@@ -310,6 +331,7 @@ Json::Value get_my_info(const std::string& me)
                     {
                         info["avatar"] = res->getInt("avatar");
                     }
+                    delete res;
                     return info;
                 };
 
@@ -341,8 +363,13 @@ Json::Value get_my_info(const std::string& me)
                 std::string userJson = Json::writeString(builder, user);
 
                 json[me] = user;
+
+                delete prepStmt;
+                delete res;
             }
         }
+        con->close();
+        delete con;
     }
     catch (sql::SQLException &e)
     {
@@ -380,13 +407,14 @@ bool sql_check(const std::string& user, const std::string& passwd)
                 result = false;
         }
 
+        con->close();
         delete res;
         delete prepStmt;
         delete con;
     }
     catch (sql::SQLException &e)
     {
-        std::cerr << "SQL Exception: " << e.what() << std::endl;
+//        std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 
   //  std::cout << result << std::endl;
@@ -483,6 +511,7 @@ Json::Value sql_find_my_msg(const std::string& me, const std::string& connect_ty
         for (auto &x : sender_messages)
             result[x.first] = x.second;
 
+        con->close();
         delete res;
         delete prepStmt;
         delete con;
@@ -505,5 +534,6 @@ void set_avatar(const std::string& person, int avatar)
     updateStatement->setInt(1, avatar);
     updateStatement->setString(2, person);
     updateStatement->execute();
+    con->close();
     delete con;
 }

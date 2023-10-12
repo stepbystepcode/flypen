@@ -1,8 +1,6 @@
 #include <iostream>
 #include <drogon/drogon.h>
 #include <jwt-cpp/jwt.h>
-#include <cstring>
-#include <iomanip>
 #include <chrono>
 #include "jwt_controller.h"
 
@@ -34,8 +32,8 @@ std::string jwtDecrypt(const std::string &token)
     }
     catch (const std::exception &e)
     {
-        std::cout << "Failed to decrypt JWT: " + std::string(e.what()) << std::endl;
-        throw std::runtime_error("Failed to decrypt JWT");
+        // std::cout << "Failed to decrypt JWT: " + std::string(e.what()) << std::endl;
+         throw std::runtime_error("Failed to decrypt JWT");
     }
 }
 
@@ -52,7 +50,7 @@ bool jwtVerify(const drogon::HttpRequestPtr &req)
         }
         catch (const std::exception &e)
         {
-            std::cout << "Wrong token" << std::endl;
+//            std::cout << "Wrong token" << std::endl;
             return false;
         }
     }
