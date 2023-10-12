@@ -3,10 +3,9 @@
 #include "jdbc/mysql_connection.h"
 #include "jdbc/mysql_driver.h"
 #include "json/json.h"
-
+extern sql::mysql::MySQL_Driver *driver;
 void sql_unlocked(const std::string& DeleteName)
 {
-    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
     sql::Statement *stmt = con->createStatement();
@@ -26,7 +25,6 @@ void sql_unlocked(const std::string& DeleteName)
 
 int sql_findexist(const std::string& receiver)
 {
-    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
     std::string readdata = "SELECT username FROM users";
@@ -42,7 +40,6 @@ int sql_findexist(const std::string& receiver)
 }
 int lockcheck(const std::string& filename)
 {
-    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
     std::string readData = "SELECT filename FROM file";
@@ -87,7 +84,6 @@ void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, s
 
 void sql_delete_operation(const std::string& sender, const std::string& receiver)
 {
-    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
 
     con->setSchema("flypen");
@@ -103,7 +99,6 @@ void sql_delete_operation(const std::string& sender, const std::string& receiver
 void sql_process_request(const std::string& sender, const std::string& receiver, const std::string& attitude)
 {
     std::vector<std::string> usernamelist;
-    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
 
@@ -181,8 +176,6 @@ void sql_process_request(const std::string& sender, const std::string& receiver,
 void sql_addrequest(const std::string& sender, const std::string& receiver)
 {
     std::vector<std::string> usernamelist;
-
-    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
 
@@ -230,7 +223,6 @@ void sql_addhistory(const std::string& sender, const std::string& receiver, cons
 {
     try
     {
-        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
 
@@ -258,7 +250,6 @@ void sql_add(const std::string& username, const std::string& passwd, int avatar)
 {
     try
     {
-        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
 
@@ -288,8 +279,6 @@ Json::Value get_my_info(const std::string& me)
 
     try
     {
-        sql::mysql::MySQL_Driver *driver;
-        driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con;
         con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
@@ -368,7 +357,6 @@ bool sql_check(const std::string& user, const std::string& passwd)
     bool result = false;
     try
     {
-        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
 
@@ -410,7 +398,6 @@ Json::Value sql_find_my_msg(const std::string& me, const std::string& connect_ty
     // std::cout << "login user: " << me << std::endl;
     try
     {
-        sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
         sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
         con->setSchema("flypen");
         sql::PreparedStatement *prepStmt;
@@ -511,7 +498,6 @@ Json::Value sql_find_my_msg(const std::string& me, const std::string& connect_ty
 
 void set_avatar(const std::string& person, int avatar)
 {
-    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
     sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
     con->setSchema("flypen");
     std::string update_sql = "UPDATE users SET avatar = ? WHERE username = ?";
