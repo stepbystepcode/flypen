@@ -7,6 +7,13 @@
 using namespace drogon;
 
 typedef void (*HandlerFunc)(const Json::Value &, std::string *, int *);
+void userInit(std::string username)
+{
+    std::string sender="FlypenTeam";
+    std::string message="Welcome to flypen! We are glad to see you here!";
+    sql_addhistory( sender, username, message, "0");
+    return ;
+}
 
 void Handle(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, HandlerFunc handler)
 {
@@ -70,7 +77,9 @@ void registerUser(const Json::Value &req_json, std::string *msg, int *code)
     if (sql_check(req_json["username"].asString()))
     {
         sql_add(req_json["username"].asString(), sha256(req_json["password"].asString()), req_json["avatar"].asInt());
+        
         *msg = "Sign up Success";
+        userInit(req_json["username"].asString());
         *code = 200;
     }
     else
@@ -86,6 +95,7 @@ void loginUser(const Json::Value &req_json, std::string *msg, int *code)
     {
         *msg = "Login Success";
         *code = 200;
+        std::cout<<"INFO: "<<req_json["username"].asString()<<" login"<<std::endl;
     }
     else
     {

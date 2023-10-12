@@ -263,12 +263,13 @@ void sql_add(const std::string& username, const std::string& passwd, int avatar)
         con->setSchema("flypen");
 
         sql::Statement *tool = con->createStatement();
-        std::string classMysql = "INSERT INTO users(username, password, avatar, createtime) VALUES (?, ?, ?, NOW())";
+        std::string classMysql = "INSERT INTO users(username, password, avatar ,friends, createtime) VALUES (?, ?, ?,? , NOW())";
         sql::PreparedStatement *ptool = con->prepareStatement(classMysql);
 
         ptool->setString(1, username);
         ptool->setString(2, passwd);
         ptool->setInt(3, avatar);
+        ptool->setString(4, "FlypenTeam");
         ptool->executeUpdate();
 
         delete ptool;
@@ -459,7 +460,7 @@ Json::Value sql_find_my_msg(const std::string& me, const std::string& connect_ty
                     updateStmt->executeUpdate();
                     delete updateStmt;
                 }
-                else
+                if(res->getString("receiver")==me)
                 {
                     sql::PreparedStatement *updateStmt = con->prepareStatement(sql0To1_rec);
                     updateStmt->setInt(1, id);
@@ -518,4 +519,5 @@ void set_avatar(const std::string& person, int avatar)
     updateStatement->setInt(1, avatar);
     updateStatement->setString(2, person);
     updateStatement->execute();
+    delete con;
 }
