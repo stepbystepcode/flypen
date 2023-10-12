@@ -8,7 +8,6 @@ void sql_unlocked(const std::string& DeleteName);
 void sql_add(const std::string& username, const std::string& passwd, int avatar);
 bool sql_check(const std::string&, const std::string& passwd = "@DEFAULT@");
 void sql_addhistory(const std::string&, const std::string&, const std::string&, const std::string&);
-void sql_addconnect(std::string connectptr);
 
 void sql_addrequest(const std::string& send, const std::string& receiver);
 void sql_process_request(const std::string&, const std::string&, const std::string&);
