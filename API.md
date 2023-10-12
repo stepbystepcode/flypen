@@ -35,7 +35,7 @@ POST /api/chat
 |HTTP Status Code |Meaning|Description|Data schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
-
+|404|[error] |失败|Inline|
 ### Responses Data Schema
 
 ## POST check
@@ -55,7 +55,6 @@ POST /api/check
 |HTTP Status Code |Meaning|Description|Data schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
-
 ### Responses Data Schema
 
 ## POST nfmgr
@@ -92,7 +91,7 @@ POST /api/nfmgr
 |HTTP Status Code |Meaning|Description|Data schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
-
+|404|[error] |User not found|Inline|
 ### Responses Data Schema
 
 ## POST info
@@ -127,7 +126,7 @@ POST /api/info
 |HTTP Status Code |Meaning|Description|Data schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
-
+|401|[error] |Invalid token|Inline|
 ### Responses Data Schema
 
 ## POST newfriend
@@ -154,7 +153,7 @@ POST /api/newfriend
 |HTTP Status Code |Meaning|Description|Data schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|Inline|
-
+|401|[error] |Unauthorized|Inline|
 ### Responses Data Schema
 
 # file
@@ -193,7 +192,7 @@ POST /api/file/save
 |HTTP Status Code |Meaning|Description|Data schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
-
+|500|[error] |Error saving file|Inline|
 ### Responses Data Schema
 
 ## POST upload
@@ -253,7 +252,7 @@ GET /api/file/get
 |HTTP Status Code |Meaning|Description|Data schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
-
+|404|[error] |File not found|Inline|
 ### Responses Data Schema
 
 ## POST commands
@@ -358,7 +357,7 @@ POST /api/login
 |HTTP Status Code |Meaning|Description|Data schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
-
+|401|[error] |Invalid credentials|Inline|
 ### Responses Data Schema
 
 ## POST signup
@@ -395,7 +394,7 @@ POST /api/signup
 |HTTP Status Code |Meaning|Description|Data schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|成功|Inline|
-
+|409|[error] |Username already exists|Inline|
 ### Responses Data Schema
 
 ## POST avatar
