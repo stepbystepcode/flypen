@@ -426,7 +426,7 @@ bool sql_check(const std::string& user, const std::string& passwd)
     }
     catch (sql::SQLException &e)
     {
-        std::cerr << "SQL Exception: " << e.what() << std::endl;
+//        std::cerr << "SQL Exception: " << e.what() << std::endl;
     }
 
   //  std::cout << result << std::endl;

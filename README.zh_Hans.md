@@ -24,35 +24,47 @@
 - 使用 MySQL Connector/C++ 8.1.0 连接数据库
 ### 入门
 
-#### 安装
+### 安装（推荐）
+ ```bash 
+ sudo apt install git gcc g++ cmake libjsoncpp-dev uuid-dev zlib1g-dev openssl libssl-dev 
+ git clone https://github.com/stepbystepcode/flypen.git --recursive 
+ cd flypen 
+ ./run.sh 
+ ``` 
+  
+ ### 安装（常规） 
+ <details> 
+ <summary>过时的</summary> 
+ <br><br> 
+ <pre> 
+ git clone https://github.com/stepbystepcode/flypen.git 
+ cd flypen 
+ git submodule update --init 
+ cd drogon 
+ git submodule update --init 
+ sudo apt install git gcc g++ cmake libjsoncpp-dev uuid-dev zlib1g-dev openssl libssl-dev 
+ mkdir build 
+ cd build 
+ cmake .. 
+ make -j 8 
+ sudo make install 
+ cd ../.. 
+ cd jwt-cpp 
+ mkdir build 
+ cd build 
+ cmake .. 
+ make -j 8 
+ sudo make install 
+ cd ../.. 
+ wget https://dev.mysql.com/get/Downloads/Connector-C++/mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz 
+ tar zxvf mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz  
+ mv mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit mysql-connector 
+ rm mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz 
+ mkdir build 
+ ./run.sh 
+ </pre> 
+ </details>
 
-```
-git clone https://github.com/stepbystepcode/flypen.git
-cd flypen
-git submodule update --init
-cd drogon
-git submodule update --init
-sudo apt install git gcc g++ cmake libjsoncpp-dev uuid-dev zlib1g-dev openssl libssl-dev
-mkdir build
-cd build
-cmake .
-make -j 8
-sudo make install
-cd ./...
-cd jwt-cpp
-mkdir build
-cd build
-cmake .
-make -j 8
-sudo make install
-cd ../..
-wget https://dev.mysql.com/get/Downloads/Connector-C++/mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
-tar zxvf mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz 
-mv mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit mysql-connector
-rm mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
-mkdir build
-./run.sh
-```
 ## API 文档
 请参阅 [API.md](API.md) 了解有关身份验证、用户管理、文档等 API 的详细信息。
 
