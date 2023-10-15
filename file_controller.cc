@@ -115,7 +115,6 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
 
                 break;
             case cp:
-
                 str = "cp";
                 result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + 
                                     params1 + " " + std::string(pathvar) + "/../root/" + 
@@ -123,7 +122,6 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
 
                 break;
             case mv:
-
                 str = "mv";
                 result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + 
                                         params1 + " " + std::string(pathvar) + "/../root/" + 
@@ -131,7 +129,6 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
 
                 break;
             case rm:
-
                 str = "rm";
                 if (params1.find("..") != std::string::npos)
                 {
@@ -206,6 +203,10 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
 {
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
+
+    Json::Value res_json;
+    Json::FastWriter writer;
+
     if (jwtVerify(req))
     {
         auto body = req->getBody();
@@ -225,13 +226,19 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
         std::string result = shell_commands(("echo '" + content + "'>" + std::string(pathvar) + "/../root/" + filename).c_str());
 
         sql_unlocked(filename);
-        res->setBody("success");
-        callback(res);
+
+        res_json["code"] = 200;
+        res_json["message"] = "File save Success";
     }
     else
     {
-        res->setBody("No Authorization");
+        res_json["code"]  = 401;
+        res_json["message"] = "No Authorization";
     }
+    
+    auto output = writer.write(res_json);
+    res->setBody(output);
+    callback(res);
 }
 
 void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
