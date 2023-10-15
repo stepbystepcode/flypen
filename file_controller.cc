@@ -25,20 +25,35 @@ std::string return_status(std::string result, const std::string& command,Json::V
 
 void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
+    Json::Value res_json;
+    Json::FastWriter writer;
+
     std::string filename = req->getParameter("filename");
     auto res = HttpResponse::newHttpResponse();
 
-    if (lockcheck(filename))
+    if(jwtVerify(req))
     {
-        res->addHeader("Access-Control-Allow-Origin", "*");
-        res->setBody("This file has been occupied");
+        if (lockcheck(filename))
+        {
+            res->addHeader("Access-Control-Allow-Origin", "*");
+            res_json["code"] = 402;
+            res_json["message"] = "This file has been occupied";
+        }
+        else
+        {
+            res->addHeader("Access-Control-Allow-Origin", "*");
+            res_json["code"] = 200;
+            res_json["message"] = "Success";
+        }
     }
     else
     {
-        res->addHeader("Access-Control-Allow-Origin", "*");
-        res->setBody("This file is yours");
+        res_json["code"] = 401;
+        res_json["message"] = "No Authorization";
     }
 
+    auto output = writer.write(res_json);
+    res->setBody(output);
     callback(res);
 }
 
