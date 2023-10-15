@@ -243,6 +243,10 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
 
 void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
+    // used to return the frontend (json value)
+    Json::Value res_json;
+    Json::FastWriter writer;
+
     auto resp = HttpResponse::newHttpResponse();
     resp->addHeader("Access-Control-Allow-Origin", "*");
     if (jwtVerify(req))
@@ -250,27 +254,36 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
         MultiPartParser fileUpload;
         if (fileUpload.parse(req) != 0 || fileUpload.getFiles().size() != 1)
         {
-            resp->setBody("Must only be one file");
-            resp->setStatusCode(k403Forbidden);
-            callback(resp);
-            return;
+            // resp->setStatusCode(k403Forbidden);
+            res_json["code"] = 403;
+            res_json["message"] = "Must only be one file";
         }
-        auto &file = fileUpload.getFiles()[0];
-        auto now = std::chrono::system_clock::now();
-        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-        std::string timestamp = std::to_string(ms) + '.' + std::string(file.getFileExtension());
+        else
+        {
+            auto &file = fileUpload.getFiles()[0];
+            auto now = std::chrono::system_clock::now();
+            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+            std::string timestamp = std::to_string(ms) + '.' + std::string(file.getFileExtension());
 
-        resp->setBody(timestamp);
-        file.save();
-        shell_commands(("mv  ./uploads/" + file.getFileName() + " ./uploads/" + timestamp).c_str());
+            resp->setBody(timestamp);
+            file.save();
+            shell_commands(("mv  ./uploads/" + file.getFileName() + " ./uploads/" + timestamp).c_str());
 
-        LOG_INFO << "The uploaded file has been saved to the ./uploads "
+            LOG_INFO << "The uploaded file has been saved to the ./uploads "
                     "directory";
+
+            res_json["code"] = 200;
+            res_json["message"] = "Upload  Success";
+        }
     }
     else
     {
-        resp->setBody("No Authorization");
+        res_json["code"] = 401;
+        res_json["messsage"] = "No Authorization";
     }
+
+    auto output = writer.write(res_json); 
+    resp->setBody(output);
     callback(resp);
 }
 
