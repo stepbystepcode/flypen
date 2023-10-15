@@ -33,15 +33,14 @@ void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
 
     if(jwtVerify(req))
     {
+        res->addHeader("Access-Control-Allow-Origin", "*");
         if (lockcheck(filename))
         {
-            res->addHeader("Access-Control-Allow-Origin", "*");
             res_json["code"] = 402;
             res_json["message"] = "This file has been occupied";
         }
         else
         {
-            res->addHeader("Access-Control-Allow-Origin", "*");
             res_json["code"] = 200;
             res_json["message"] = "Success";
         }
@@ -85,11 +84,11 @@ std::string shell_commands(const char *cmd)
 void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto res = HttpResponse::newHttpResponse();
+    std::string result;
 
-    std::string result, str;
     Json::Value res_json;
-
     Json::FastWriter writer;
+
     res->addHeader("Access-Control-Allow-Origin", "*");
 
     if (jwtVerify(req))
@@ -104,7 +103,6 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
             touch,
             cat
         } command;
-
         char *pathvar;
         pathvar = getenv("PWD");
 
@@ -112,10 +110,9 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
         std::string params1 = req->getJsonObject()->get("params", "")[0].asString();
         std::string params2 = req->getJsonObject()->get("params", "")[1].asString();
 
-        if ((params1.find("..") != std::string::npos) || 
-            (params2.find("..") != std::string::npos))
+        if ((params1.find("..") != std::string::npos) || (params2.find("..") != std::string::npos))
         {
-            result = "Error: result in wrong directory";
+            result = "Error:result in wrong directory";
             res_json["code"] = 400;
         }
         else
@@ -123,53 +120,34 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
             switch (command)
             {
             case tree:
-                str = "tree";
-                result = shell_commands(("cd " + std::string(pathvar) + "/.. " + "&&" + 
-                                        "tree -J root").c_str());
-                
-
+                result = shell_commands(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
                 break;
             case cp:
-                str = "cp";
-                result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + 
-                                    params1 + " " + std::string(pathvar) + "/../root/" + 
-                                    params2).c_str());
-
+                result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+                result = return_status(result, "cp",res_json);
                 break;
             case mv:
-                str = "mv";
-                result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + 
-                                        params1 + " " + std::string(pathvar) + "/../root/" + 
-                                        params2).c_str());
-
+                result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+                result = return_status(result, "mv",res_json);
                 break;
             case rm:
-                str = "rm";
                 if (params1.find("..") != std::string::npos)
                 {
                     result = "error:result in wrong directory";
                     res_json["code"] = 400;
                     break;
                 }
-
-                result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" +
-                                        params1).c_str());
-
+                result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+                result = return_status(result, "rm",res_json);
                 break;
             case mkdir:
-
-                str = "mkdir";
-                result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + 
-                                        params1).c_str());
+                result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+                result = return_status(result, "mkdir",res_json);
                 break;
             case touch:
-                str = "touch";
-                if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + 
-                                    params1 + " grep ^- ").c_str()).empty())
+                if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()).empty())
                 {
-                    shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1)
-                                    .c_str());
-
+                    shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());          
                     result = "success";
                     res_json["code"] = 200;
                 }
@@ -178,26 +156,16 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
                     result = "error:file already exists";
                     res_json["code"] = 400;
                 }
-                
                 break;
             case cat:
-                str = "cat";
-
-                result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + params1)
-                                        .c_str());
+                result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
                 res_json["code"] = 200;
-
                 break;
             default:
-
-                result = "Error: command not found";
+                result = "error:command not found";
                 res_json["code"] = 400;
-
                 break;
             }
-
-            // TODO:
-            result = return_status(result, str, res_json);
         }
     }
     else
@@ -205,10 +173,9 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
         result = "No Authorization";
         res_json["code"] = 401;
     }
-    
+
     res_json["message"] = result;
 
-    res->addHeader("Access-Control-Allow-Origin", "*");
     auto output = writer.write(res_json);
     res->setBody(output);
     callback(res);
