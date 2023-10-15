@@ -289,8 +289,25 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
 
 void getPicture(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
+    Json::Value res_json;
+    Json::FastWriter writer;
+
     std::string filename = req->getParameter("filename");
     auto resp = HttpResponse::newFileResponse("./uploads/" + filename);
     resp->addHeader("Access-Control-Allow-Origin", "*");
+
+    if(jwtVerify(req))
+    {
+        res_json["code"] = 200;
+        res_json["message"] = "Picture get success!";
+    }
+    else
+    {
+        res_json["code"] = 404;
+        res_json["message"] = "PICTURE NOT FOUND!!!";
+    }
+
+    auto output = writer.write(res_json);
+    resp->setBody(output);
     callback(resp);
 }
