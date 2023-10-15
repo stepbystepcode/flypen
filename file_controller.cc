@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <string>
 
-std::string return_status(std::string result, const std::string& command,Json::Value &res_json)
+std::string return_status(std::string result, const std::string &command, Json::Value &res_json)
 {
     if (!result.empty())
     {
@@ -19,7 +19,7 @@ std::string return_status(std::string result, const std::string& command,Json::V
         result = " Error in :" + command;
         res_json["code"] = 400;
     }
-        
+
     return result;
 }
 
@@ -31,7 +31,7 @@ void add_lock(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
     std::string filename = req->getParameter("filename");
     auto res = HttpResponse::newHttpResponse();
 
-    if(jwtVerify(req))
+    if (jwtVerify(req))
     {
         res->addHeader("Access-Control-Allow-Origin", "*");
         if (lockcheck(filename))
@@ -92,7 +92,7 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
     res->addHeader("Access-Control-Allow-Origin", "*");
 
     if (jwtVerify(req))
-    {                
+    {
         enum Command
         {
             tree,
@@ -124,11 +124,11 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
                 break;
             case cp:
                 result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-                result = return_status(result, "cp",res_json);
+                result = return_status(result, "cp", res_json);
                 break;
             case mv:
                 result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
-                result = return_status(result, "mv",res_json);
+                result = return_status(result, "mv", res_json);
                 break;
             case rm:
                 if (params1.find("..") != std::string::npos)
@@ -138,16 +138,16 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
                     break;
                 }
                 result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-                result = return_status(result, "rm",res_json);
+                result = return_status(result, "rm", res_json);
                 break;
             case mkdir:
                 result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
-                result = return_status(result, "mkdir",res_json);
+                result = return_status(result, "mkdir", res_json);
                 break;
             case touch:
                 if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()).empty())
                 {
-                    shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());          
+                    shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
                     result = "success";
                     res_json["code"] = 200;
                 }
@@ -214,10 +214,10 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
     }
     else
     {
-        res_json["code"]  = 401;
+        res_json["code"] = 401;
         res_json["message"] = "No Authorization";
     }
-    
+
     auto output = writer.write(res_json);
     res->setBody(output);
     callback(res);
@@ -252,7 +252,7 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
             shell_commands(("mv  ./uploads/" + file.getFileName() + " ./uploads/" + timestamp).c_str());
 
             LOG_INFO << "The uploaded file has been saved to the ./uploads "
-                    "directory";
+                        "directory";
 
             res_json["code"] = 200;
             res_json["message"] = "Upload  Success";
@@ -264,7 +264,7 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
         res_json["messsage"] = "No Authorization";
     }
 
-    auto output = writer.write(res_json); 
+    auto output = writer.write(res_json);
     resp->setBody(output);
     callback(resp);
 }
@@ -278,7 +278,7 @@ void getPicture(const HttpRequestPtr &req, std::function<void(const HttpResponse
     auto resp = HttpResponse::newFileResponse("./uploads/" + filename);
     resp->addHeader("Access-Control-Allow-Origin", "*");
 
-    if(jwtVerify(req))
+    if (jwtVerify(req))
     {
         res_json["code"] = 200;
         res_json["message"] = "Picture get success!";
