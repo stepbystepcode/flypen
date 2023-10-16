@@ -145,7 +145,7 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
                 result = return_status(result, "mkdir", res_json);
                 break;
             case touch:
-                if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + " grep ^- ").c_str()).empty())
+                if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + "| grep ^- ").c_str()).empty())
                 {
                     shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
                     result = "success";
