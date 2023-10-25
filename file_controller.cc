@@ -255,7 +255,7 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
                         "directory";
 
             res_json["code"] = 200;
-            res_json["message"] = "Upload  Success";
+            res_json["message"] = timestamp ;
         }
     }
     else
