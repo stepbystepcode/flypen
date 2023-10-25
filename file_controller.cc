@@ -255,7 +255,7 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
                         "directory";
 
             res_json["code"] = 200;
-            res_json["message"] = timestamp;
+            res_json["message"] = timestamp ;
         }
     }
     else
@@ -271,17 +271,8 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
 
 void getPicture(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
-    Json::Value res_json;
-    Json::FastWriter writer;
-
     std::string filename = req->getParameter("filename");
     auto resp = HttpResponse::newFileResponse("./uploads/" + filename);
     resp->addHeader("Access-Control-Allow-Origin", "*");
-
-    res_json["code"] = 200;
-    res_json["message"] = "Picture get success!";
-
-    auto output = writer.write(res_json);
-    resp->setBody(output);
     callback(resp);
 }
