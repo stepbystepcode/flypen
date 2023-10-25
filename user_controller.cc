@@ -10,8 +10,12 @@ typedef void (*HandlerFunc)(const Json::Value &, std::string *, int *);
 void userInit(std::string username)
 {
     std::string sender="FlypenTeam";
-    std::string message="Welcome to flypen! We are glad to see you here!";
-    sql_addhistory( sender, username, message, "0");
+    std::string message0="Welcome to flypen! We are glad to see you here!";
+    std::string message0="Our course design is mainly divided into two modules :1. Chat module; 2. File editing module.We will introduce this module.";
+    std::string message0="Initially, you only have FlypenTeam. You can send and receive friend requests by going to [More] →[New friends] in the upper left corner.";
+    std::string message0="To use the file sharing function, you can go to [more] →[Group wiki] in the upper left corner to experience the addition, deletion, modification and checking of files.";
+    std::string message0="However, do not modify or delete files at will to avoid affecting the experience of others";
+    sql_addhistory( sender, username, message0, "0");
     return ;
 }
 
