@@ -255,7 +255,7 @@ void imageUpload(const HttpRequestPtr &req, std::function<void(const HttpRespons
                         "directory";
 
             res_json["code"] = 200;
-            res_json["message"] = timestamp ;
+            res_json["message"] = timestamp;
         }
     }
     else
@@ -278,16 +278,8 @@ void getPicture(const HttpRequestPtr &req, std::function<void(const HttpResponse
     auto resp = HttpResponse::newFileResponse("./uploads/" + filename);
     resp->addHeader("Access-Control-Allow-Origin", "*");
 
-    if (jwtVerify(req))
-    {
-        res_json["code"] = 200;
-        res_json["message"] = "Picture get success!";
-    }
-    else
-    {
-        res_json["code"] = 404;
-        res_json["message"] = "PICTURE NOT FOUND!!!";
-    }
+    res_json["code"] = 200;
+    res_json["message"] = "Picture get success!";
 
     auto output = writer.write(res_json);
     resp->setBody(output);
