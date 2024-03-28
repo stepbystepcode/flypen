@@ -24,8 +24,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
-add_executable(${PROJECT_NAME} main.cc mysql.cc user_controller.cc jwt_controller.cc msg_controller.cc file_controller.cc)
+add_executable(${PROJECT_NAME} main.cc mysql.cc user_controller.cc jwt_controller.cc msg_controller.cc file_controller.cc pgsql.cc)
 
+add_subdirectory(libpqxx build-pqxx)
 
 # 链接MySQL Connector/C++库
 # 包含MySQL Connector/C++的include目录
@@ -48,6 +49,7 @@ link_directories(${MYSQL_CONNECTOR_CPP_ROOT}/lib64)
 # 并且注释掉以下几行
 find_package(Drogon CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon )
+target_link_libraries(${PROJECT_NAME} PRIVATE pqxx)
 target_link_libraries(${PROJECT_NAME} PRIVATE -L${MYSQL_CONNECTOR_CPP_ROOT}/lib64 -lmysqlcppconn)
 find_package(OpenSSL REQUIRED)
 

@@ -31,7 +31,7 @@ Frontend Project for Flypen is [Here](https://github.com/stepbystepcode/flypen-f
 
 ### Installation (Automatic)
 ```bash
-sudo apt install git gcc g++ cmake libjsoncpp-dev uuid-dev zlib1g-dev openssl libssl-dev
+sudo apt install git gcc g++ cmake libjsoncpp-dev uuid-dev zlib1g-dev openssl libssl-dev libpqxx-dev
 git clone https://github.com/stepbystepcode/flypen.git --recursive
 cd flypen
 ./run.sh
