@@ -116,23 +116,39 @@ void sql_process_request(const std::string &sender, const std::string &receiver,
 }
 
 void sql_addrequest(const std::string &sender, const std::string &receiver) {
+    
+    if(sender == receiver)
+    {
+        std::cout << "ERROR: SAME NAME\n";
+        return;
+    }
+
+    std::cout << sender << ' ' << receiver << std::endl;
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
+
         std::string readData = "SELECT req FROM users WHERE username = $1";
         pqxx::result res = txn.exec_params(readData, receiver);
-        std::string req = res[0]["req"].as<std::string>();
-        size_t pos = req.find(sender);
-        if (pos != std::string::npos)
-            return;
+        
+        // 数据库中的字段默认有一个元素为空
+        if(res[0][0].is_null()) res.clear();
+        
         std::string updateQuery = "UPDATE users SET req = $1 WHERE username = $2";
-        if (!req.empty())
-            txn.exec_params(updateQuery, req + "," + sender, receiver);
-        else
+        if(res.empty()) 
             txn.exec_params(updateQuery, sender, receiver);
+        else 
+        {
+            std::string req = res[0]["req"].as<std::string>();
+            size_t pos = req.find(sender);
+            if (pos != std::string::npos) return;
+            if (!req.empty())
+                txn.exec_params(updateQuery, req + "," + sender, receiver);
+        }
         txn.commit();
-    } catch (const std::exception &e) {
-        std::cerr << "SQL Exception: " << e.what() << std::endl;
+    } 
+    catch (const std::exception &e) {
+        std::cerr << "SQL Exception in sql_addrequest: " << e.what() << std::endl;
     }
 }
 
