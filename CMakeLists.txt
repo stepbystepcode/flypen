@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(flypen CXX)
 
-# 设置MySQL Connector/C++的根目录路径
-
-set(MYSQL_CONNECTOR_CPP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/mysql-connector")
 
 include(CheckIncludeFileCXX)
 
@@ -24,22 +21,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
-add_executable(${PROJECT_NAME} main.cc mysql.cc user_controller.cc jwt_controller.cc msg_controller.cc file_controller.cc pgsql.cc)
+add_executable(${PROJECT_NAME} main.cc user_controller.cc jwt_controller.cc msg_controller.cc file_controller.cc pgsql.cc)
 
 add_subdirectory(libpqxx build-pqxx)
-
-# 链接MySQL Connector/C++库
-# 包含MySQL Connector/C++的include目录
-target_include_directories(${PROJECT_NAME}
-    PUBLIC
-    ${MYSQL_CONNECTOR_CPP_ROOT}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/models
-)
-
-# 链接MySQL Connector/C++库
-# 包含MySQL Connector/C++的lib64目录
-link_directories(${MYSQL_CONNECTOR_CPP_ROOT}/lib64)
 
 # ##############################################################################
 # 如果你在项目中本地包含了drogon源代码，请使用以下方法添加drogon
@@ -50,13 +34,11 @@ link_directories(${MYSQL_CONNECTOR_CPP_ROOT}/lib64)
 find_package(Drogon CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon )
 target_link_libraries(${PROJECT_NAME} PRIVATE pqxx)
-target_link_libraries(${PROJECT_NAME} PRIVATE -L${MYSQL_CONNECTOR_CPP_ROOT}/lib64 -lmysqlcppconn)
 find_package(OpenSSL REQUIRED)
 
 # 添加 OpenSSL 库到可执行文件链接参数
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto)
 
-#link_directories(/home/lgy/c++kc/mysql-connector/lib64)
 #
 # ##############################################################################
 if (CMAKE_CXX_STANDARD LESS 17)

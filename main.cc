@@ -2,9 +2,7 @@
 #include "msg_controller.h"
 #include "user_controller.h"
 #include "file_controller.h"
-#include<mysql.h>
 using namespace drogon;
-sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
 int main()
 {
     drogon::app().addListener("0.0.0.0", 8081);
