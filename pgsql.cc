@@ -244,28 +244,37 @@ bool sql_check(const std::string &user, const std::string &passwd) {
     return result;
 }
 
-Json::Value sql_find_my_msg(const std::string &me, const std::string &connect_type) {
-    try {
+Json::Value sql_find_my_msg(const std::string &me, const std::string &connect_type) 
+{
+    try 
+    {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::nontransaction txn(conn);
-        std::string sqlFind_new_connect = "SELECT * FROM chat WHERE sender = $1 OR receiver = $2";
-        std::string sqlFind_isread_is_zero = "SELECT * FROM chat WHERE (sender = $1 AND sender_isread = 0) OR (receiver = $2 AND receiver_isread = 0)";
-        std::string sql = connect_type == "all" ? sqlFind_new_connect : sqlFind_isread_is_zero;
+
+        std::string sql;
+        if(connect_type == "all") sql = "SELECT * FROM chat WHERE sender = $1 OR receiver = $2";
+        else sql = "SELECT * FROM chat WHERE (sender = $1 AND sender_isread = 0) OR \
+                                             (receiver = $2 AND receiver_isread = 0)";
+
         pqxx::result res = txn.exec_params(sql, me, me);
 
         std::string sql0To1_sender = "UPDATE chat SET sender_isread = 1 WHERE id = $1";
-        std::string sql0To1_rec = "UPDATE chat SET receiver_isread = 1 WHERE id = $2";
+        std::string sql0To1_rec = "UPDATE chat SET receiver_isread = 1 WHERE id = $1";
 
         Json::Value result;
         std::map<std::string, Json::Value> sender_messages;
 
-        for (const auto &row : res) {
-            if (connect_type == "new") {
+        for (const auto &row : res) 
+        {
+            if (connect_type == "new") 
+            {
                 int id = row["id"].as<int>();
                 std::string sender = row["sender"].as<std::string>();
                 std::string receiver = row["receiver"].as<std::string>();
+
                 if (sender == me)
                     txn.exec_params(sql0To1_sender, id);
+
                 if (receiver == me)
                     txn.exec_params(sql0To1_rec, id);
             }
@@ -274,7 +283,8 @@ Json::Value sql_find_my_msg(const std::string &me, const std::string &connect_ty
             std::string sender = row["sender"].as<std::string>();
             std::string receiver = row["receiver"].as<std::string>();
 
-            if (sender == me || receiver == me) {
+            if (sender == me || receiver == me) 
+            {
                 std::string key = (sender == me) ? receiver : sender;
                 Json::Value &messages = sender_messages[key];
 
@@ -289,13 +299,15 @@ Json::Value sql_find_my_msg(const std::string &me, const std::string &connect_ty
                 messages.append(item);
             }
         }
+
         for (auto &x : sender_messages)
             result[x.first] = x.second;
-
+        
         return result;
-    } catch (const std::exception &e) {
+    } 
+    catch (const std::exception &e)
+    {
         std::cerr << "SQL Exception in sql_find_my_msg: " << e.what() << std::endl;
-        return "error";
     }
 }
 
