@@ -3,6 +3,21 @@
 #include <iostream>
 #include "json/json.h"
 
+void sql_add_keypair(std::string username, unsigned char* pk, unsigned char* sk)
+{
+    try {
+        pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
+        pqxx::work txn(conn);
+        
+        std::string update("UPDATE users SET public_key = $1, private_key = $2 WHERE username = $3");
+        txn.exec_params(update, pk, sk, username);
+        txn.commit();
+    } 
+    catch (const std::exception &e) {
+        std::cerr << "SQL Exception in sql_add_keypair() " << e.what() << std::endl;
+    }
+}
+
 void sql_unlocked(const std::string &DeleteName) {
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
