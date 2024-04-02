@@ -11,4 +11,5 @@ void registerUser(const Json::Value &req_json, std::string *msg, int *code);
 void loginUser(const Json::Value &req_json, std::string *msg, int *code);
 void avatar(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
 void userInit(std::string username);
+void generate_keypair(std::string);
 #endif

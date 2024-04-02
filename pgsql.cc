@@ -2,6 +2,33 @@
 #include <sstream>
 #include <iostream>
 #include "json/json.h"
+#include <sodium.h>
+
+void sql_add_keypair(std::string username, unsigned char* pk, unsigned char* sk)
+{
+    try {
+        pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
+        pqxx::work txn(conn);
+
+        auto encode_bin_to_hex = [](unsigned char* k, std::size_t len) -> std::string {
+            std::size_t b64_len = sodium_base64_encoded_len(len, sodium_base64_VARIANT_ORIGINAL);
+            char* b64_str = new char[b64_len];
+
+            sodium_bin2base64(b64_str, b64_len, k, len, sodium_base64_VARIANT_ORIGINAL);
+            return std::string(b64_str);
+        };
+
+        std::string PK = encode_bin_to_hex(pk, crypto_box_PUBLICKEYBYTES);
+        std::string SK = encode_bin_to_hex(sk, crypto_box_SECRETKEYBYTES);
+        
+        txn.exec_params("UPDATE users SET public_key = $1, private_key = $2 WHERE username = $3", 
+                                                        PK, SK, username);
+        txn.commit();
+    } 
+    catch (const std::exception &e) {
+        std::cerr << "SQL Exception in sql_add_keypair() " << e.what() << std::endl;
+    }
+}
 
 void sql_unlocked(const std::string &DeleteName) {
     try {
@@ -246,6 +273,7 @@ bool sql_check(const std::string &user, const std::string &passwd) {
 
 Json::Value sql_find_my_msg(const std::string &me, const std::string &connect_type) 
 {
+    Json::Value result;
     try 
     {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
@@ -261,7 +289,6 @@ Json::Value sql_find_my_msg(const std::string &me, const std::string &connect_ty
         std::string sql0To1_sender = "UPDATE chat SET sender_isread = 1 WHERE id = $1";
         std::string sql0To1_rec = "UPDATE chat SET receiver_isread = 1 WHERE id = $1";
 
-        Json::Value result;
         std::map<std::string, Json::Value> sender_messages;
 
         for (const auto &row : res) 
@@ -302,13 +329,13 @@ Json::Value sql_find_my_msg(const std::string &me, const std::string &connect_ty
 
         for (auto &x : sender_messages)
             result[x.first] = x.second;
-        
-        return result;
+
     } 
     catch (const std::exception &e)
     {
         std::cerr << "SQL Exception in sql_find_my_msg: " << e.what() << std::endl;
     }
+    return result;
 }
 
 void set_avatar(const std::string &person, int avatar) {

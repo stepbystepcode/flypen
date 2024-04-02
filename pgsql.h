@@ -16,3 +16,4 @@ Json::Value get_my_info(const std::string &me) ;
 bool sql_check(const std::string &user, const std::string &passwd = "@DEFAULT@") ;
 Json::Value sql_find_my_msg(const std::string &me, const std::string &connect_type) ;
 void set_avatar(const std::string &person, int avatar) ;
+void sql_add_keypair(std::string, unsigned char*, unsigned char*);
