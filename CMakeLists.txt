@@ -39,6 +39,8 @@ find_package(OpenSSL REQUIRED)
 # 添加 OpenSSL 库到可执行文件链接参数
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto)
 
+find_library(SODIUM_LIB sodium)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SODIUM_LIB})
 #
 # ##############################################################################
 if (CMAKE_CXX_STANDARD LESS 17)
