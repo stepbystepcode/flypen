@@ -2,6 +2,11 @@
 #include "msg_controller.h"
 #include "user_controller.h"
 #include "file_controller.h"
+
+#include "controller/msg/msgController.h"
+#include "controller/user/userController.h"
+#include "controller/file/fileController.h"
+
 using namespace drogon;
 int main()
 {
