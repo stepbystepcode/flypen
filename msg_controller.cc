@@ -36,7 +36,7 @@ void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
     }
     else
     {
-        res_json["message"] = "No Authorization";
+        res_json["message"] = "No  Authorization";
         res_json["code"] = 401;
     }
 
