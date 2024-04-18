@@ -55,5 +55,35 @@ public:
     WS_PATH_LIST_END
 };
 
+class NfmgrController : public WebSocketController<NfmgrController>
+{
+public:
+    void handleNewConnection(const HttpRequestPtr& req,
+                             const WebSocketConnectionPtr& conn) override;
+    void handleNewMessage(const WebSocketConnectionPtr& conn, 
+                          std::string&& message,
+                          const WebSocketMessageType& type) override;
+    void handleConnectionClosed(const WebSocketConnectionPtr& conn) override;
+public:
+    WS_PATH_LIST_BEGIN
+    WS_PATH_ADD("/api/msg/nfmgr");
+    WS_PATH_LIST_END
+};
+
+class NewFriendsController : public WebSocketController<NewFriendsController>
+{
+public:
+    void handleNewConnection(const HttpRequestPtr &,
+                             const WebSocketConnectionPtr&) override;
+    void handleNewMessage(const WebSocketConnectionPtr& conn, 
+                          std::string&& message,
+                          const WebSocketMessageType& type) override;
+    void handleConnectionClosed(const WebSocketConnectionPtr&) override;
+public:
+    WS_PATH_LIST_BEGIN
+    WS_PATH_ADD("/api/msg/newfriends");
+    WS_PATH_LIST_END
+};
+
 };
 #endif
