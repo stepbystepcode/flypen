@@ -4,33 +4,16 @@
 #include <openssl/sha.h>
 #include "jwt_controller.h"
 #include "msg_controller.h"
-#include <sodium.h>
 using namespace drogon;
 
 typedef void (*HandlerFunc)(const Json::Value &, std::string *, int *);
 
-void generate_kaypair(std::string username)
-{
- 
-    if(sodium_init() == -1) {
-        std::cerr << "Error: sodium Library Initialized Error\n";
-    }
-
-    unsigned char pk[crypto_box_PUBLICKEYBYTES] = {};
-    unsigned char sk[crypto_box_SECRETKEYBYTES] = {};
-    if(crypto_box_keypair(pk, sk)) {
-        std::cerr << "ERROR: crypto_box_keypair ERROR in function generate_keypair\n";
-    }
-    sql_add_keypair(username, pk, sk); // add key pair to pgsql
-
-}
 
 void userInit(std::string username)
 {
     std::string sender="FlypenTeam";
     std::string message="Welcome to flypen! We are glad to see you here!";
     sql_addhistory( sender, username, message, "0");
-    generate_kaypair(username);
     return ;
 }
 
@@ -95,7 +78,7 @@ void registerUser(const Json::Value &req_json, std::string *msg, int *code)
 {
     if (sql_check(req_json["username"].asString()))
     {
-        sql_add(req_json["username"].asString(), sha256(req_json["password"].asString()), req_json["avatar"].asInt());
+        sql_add(req_json["username"].asString(), sha256(req_json["password"].asString()), req_json["avatar"].asInt(), req_json["public_key"].asString());
         
         *msg = "Sign up Success";
         userInit(req_json["username"].asString());

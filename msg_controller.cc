@@ -5,6 +5,32 @@
 
 using namespace drogon;
 
+void getPublicKey(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr& )> && callback)
+{
+    auto body = req->getBody();
+    Json::Value req_json, res_json;
+
+    auto res = HttpResponse::newHttpResponse();
+    if(jwtVerify(req))
+    {
+        std::string userName = req_json["receiver"].asString();
+
+        std::string public_key = sql_query_public_key(userName);
+
+        res_json["code"] = 200;
+        res_json["message"] = "Public Key added Successfully!!!";
+        res_json["publick_key"] = public_key;
+        }
+    else
+    {
+        res_json["code"] = 401;
+        res_json["message"] = "jwtVerify failed in getPublicKey() !!!";
+    }
+
+    res->setBody(Json::FastWriter().write(res_json));
+    callback(res);
+}
+
 // send a message
 void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
