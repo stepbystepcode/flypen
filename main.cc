@@ -2,11 +2,14 @@
 #include "msg_controller.h"
 #include "user_controller.h"
 #include "file_controller.h"
+
 using namespace drogon;
 int main()
 {
     drogon::app().addListener("0.0.0.0", 8081);
     //std::cout << "ready" << std::endl;
+    drogon::app().registerHandler("/api/getKey", [](const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> && callback)
+                                  { getPublicKey(req, std::move(callback)); });
     drogon::app().registerHandler("/api/signup", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
                                   { Handle(req, std::move(callback), registerUser); });
     drogon::app().registerHandler("/api/login", [](const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)

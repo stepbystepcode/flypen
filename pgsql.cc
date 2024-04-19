@@ -4,30 +4,25 @@
 #include "json/json.h"
 #include <sodium.h>
 
-void sql_add_keypair(std::string username, unsigned char* pk, unsigned char* sk)
+std::string sql_query_public_key(const std::string& userName)
 {
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
 
-        auto encode_bin_to_hex = [](unsigned char* k, std::size_t len) -> std::string {
-            std::size_t b64_len = sodium_base64_encoded_len(len, sodium_base64_VARIANT_ORIGINAL);
-            char* b64_str = new char[b64_len];
+        std::cout << userName << std::endl;
 
-            sodium_bin2base64(b64_str, b64_len, k, len, sodium_base64_VARIANT_ORIGINAL);
-            return std::string(b64_str);
-        };
+        std::string query = "SELECT public_key FROM users WHERE username=$1";
 
-        std::string PK = encode_bin_to_hex(pk, crypto_box_PUBLICKEYBYTES);
-        std::string SK = encode_bin_to_hex(sk, crypto_box_SECRETKEYBYTES);
+        pqxx::result result = txn.exec_params(query, userName);
+        std::cout << result[0][0].as<std::string>() << std::endl;
         
-        txn.exec_params("UPDATE users SET public_key = $1, private_key = $2 WHERE username = $3", 
-                                                        PK, SK, username);
-        txn.commit();
+        return result[0][0].as<std::string>();
     } 
     catch (const std::exception &e) {
-        std::cerr << "SQL Exception in sql_add_keypair() " << e.what() << std::endl;
+        std::cerr << "SQL Exception in sql_query_public_key()\ns" << e.what() << std::endl;
     }
+    return "ERROR: getPublicKey FAILED";
 }
 
 void sql_unlocked(const std::string &DeleteName) {
@@ -190,12 +185,12 @@ void sql_addhistory(const std::string &sender, const std::string &receiver, cons
     }
 }
 
-void sql_add(const std::string &username, const std::string &passwd, int avatar) {
+void sql_add(const std::string &username, const std::string &passwd, int avatar, const std::string& public_key) {
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
-        std::string insertData = "INSERT INTO users(username, password, avatar, friends, createtime) VALUES ($1, $2, $3, 'FlypenTeam', CURRENT_TIMESTAMP)";
-        txn.exec_params(insertData, username, passwd, avatar);
+        std::string insertData = "INSERT INTO users(username, password, avatar, friends, createtime, public_key) VALUES ($1, $2, $3, 'FlypenTeam', CURRENT_TIMESTAMP, $4)";
+        txn.exec_params(insertData, username, passwd, avatar, public_key);
         txn.commit();
     } catch (const std::exception &e) {
         std::cerr << "SQL Exception in sql_add: " << e.what() << std::endl;
