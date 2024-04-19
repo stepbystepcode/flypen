@@ -10,14 +10,19 @@ std::string sql_query_public_key(const std::string& userName)
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
 
-        std::string query = "SELECT publick_key FROM users WHERE username=$1";
+        std::cout << userName << std::endl;
+
+        std::string query = "SELECT public_key FROM users WHERE username=$1";
 
         pqxx::result result = txn.exec_params(query, userName);
+        std::cout << result[0][0].as<std::string>() << std::endl;
+        
         return result[0][0].as<std::string>();
     } 
     catch (const std::exception &e) {
-        std::cerr << "SQL Exception in sql_add_public_key() " << e.what() << std::endl;
+        std::cerr << "SQL Exception in sql_query_public_key()\ns" << e.what() << std::endl;
     }
+    return "ERROR: getPublicKey FAILED";
 }
 
 void sql_unlocked(const std::string &DeleteName) {
@@ -180,7 +185,7 @@ void sql_addhistory(const std::string &sender, const std::string &receiver, cons
     }
 }
 
-void sql_add(const std::string &username, const std::string &passwd, int avatar, std::string public_key) {
+void sql_add(const std::string &username, const std::string &passwd, int avatar, const std::string& public_key) {
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
