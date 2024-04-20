@@ -7,30 +7,13 @@ using namespace drogon;
 
 void getPublicKey(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr& )> && callback)
 {
-    Json::Value req_json, res_json;
-
-    if(!Json::Reader().parse(std::string(req->getBody()), req_json)) 
-    {
-        callback(HttpResponse::newHttpResponse());
-        return;
-    }
-
+    Json::Value res_json;
+    auto recipient = req->getParameter("recipient"); // Read "recipient" parameter from request
     auto res = HttpResponse::newHttpResponse();
-    if(jwtVerify(req))
-    {
-        std::string userName = req_json["recipient"].asString();
-        std::string public_key = sql_query_public_key(userName);
-
-        res_json["code"] = 200;
-        res_json["message"] = "Public Key query Successfully!!!";
-        res_json["publick_key"] = public_key;
-    }
-    else
-    {
-        res_json["code"] = 401;
-        res_json["message"] = "jwtVerify failed in getPublicKey() !!!";
-    }
-
+    std::string public_key = sql_query_public_key(recipient); // Use recipient parameter
+    res_json["code"] = 200;
+    res_json["message"] = "Public Key query Successfully!!!";
+    res_json["publick_key"] = public_key;
     res->setBody(Json::FastWriter().write(res_json));
     callback(res);
 }
