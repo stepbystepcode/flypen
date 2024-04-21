@@ -13,7 +13,7 @@ void getPublicKey(const HttpRequestPtr& req, std::function<void(const HttpRespon
     std::string public_key = sql_query_public_key(recipient); // Use recipient parameter
     res_json["code"] = 200;
     res_json["message"] = "Public Key query Successfully!!!";
-    res_json["publick_key"] = public_key;
+    res_json["public_key"] = public_key;
     res->setBody(Json::FastWriter().write(res_json));
     callback(res);
 }
