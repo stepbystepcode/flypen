@@ -1,9 +1,8 @@
 #!/bin/bash
 
-echo "---- C++ Course Design ----"
+echo "---- Crypto Course Design ----"
 
 CORES=$(nproc)
-#最多使用
 echo "-- Using $CORES cores."
 CORES=$((CORES - 1))
 spin() {
@@ -17,7 +16,6 @@ spin() {
 		done
 	done
 }
-#检测是否可以执行dg_ctl命令
 if [ ! -x "$(command -v dg_ctl)" ]; then
 	echo "-- drogon does not exist, downloading..."
 	git submodule update --init
@@ -33,7 +31,6 @@ if [ ! -x "$(command -v dg_ctl)" ]; then
 	sudo make install
 	cd ../..
 fi
-#检测/usr/local/include/jwt-cpp/jwt.h是否存在
 if [ ! -f "/usr/local/include/jwt-cpp/jwt.h" ]; then
 	echo "-- jwt-cpp does not exist, downloading..."
 	git submodule update --init
@@ -51,42 +48,8 @@ if [ "$(uname)" == "Darwin" ]; then
 	echo "-- Macos detected"
 	export PostgreSQL_INCLUDE_DIR=$(brew --prefix postgresql@16)/include
 	export PostgreSQL_LIBRARY=$(brew --prefix postgresql@16)/lib
-
-	#检测是否存在mysql-connector文件夹
-	if [ ! -d "mysql-connector" ]; then
-		echo "-- mysql-connector folder does not exist, downloading..."
-		wget https://cdn.mysql.com//Downloads/Connector-C++/mysql-connector-c++-8.1.0-macos13-arm64.tar.gz
-		#下载是否成功
-		if [ $? -ne 0 ]; then
-			echo "-- Download failed, please check your network"
-			exit 1
-		fi
-		tar -xvf mysql-connector-c++-8.1.0-macos13-arm64.tar.gz
-		mv mysql-connector-c++-8.1.0-macos13-arm64 mysql-connector
-		rm mysql-connector-c++-8.1.0-macos13-arm64.tar.gz
-	else
-		echo "-- mysql-connector folder already exists "
-	fi
-	export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/mysql-connector/lib64
 else
 	echo "-- Linux detected"
-	#检测是否存在mysql-connector文件夹
-	if [ ! -d "mysql-connector" ]; then
-		echo "-- mysql-connector folder does not exist, downloading..."
-		rm -rf mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
-		wget https://cdn.mysql.com//Downloads/Connector-C++/mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
-		#下载是否成功
-		if [ $? -ne 0 ]; then
-			echo "-- Download failed, please check your network"
-			exit 1
-		fi
-		tar -xvf mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
-		mv mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit mysql-connector
-		rm mysql-connector-c++-8.1.0-linux-glibc2.28-x86-64bit.tar.gz
-	else
-		echo "-- mysql-connector folder already exists "
-	fi
-	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/mysql-connector/lib64
 fi
 #检测是否存在build文件夹
 if [ ! -d "build" ]; then
