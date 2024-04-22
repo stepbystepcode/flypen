@@ -10,7 +10,7 @@ void process(pqxx::work &txn, std::vector<std::string> s) ;
 void sql_delete_operation(const std::string &sender, const std::string &receiver) ;
 void sql_process_request(const std::string &sender, const std::string &receiver, const std::string &attitude) ;
 void sql_addrequest(const std::string &sender, const std::string &receiver) ;
-void sql_addhistory(const std::string &sender, const std::string &receiver, const std::string &message, const std::string &isread) ;
+void sql_addhistory(const std::string &sender, const std::string &receiver, const std::string &message, const std::string& nonce, const std::string &isread) ;
 void sql_add(const std::string &username, const std::string &passwd, int avatar, const std::string &public_key) ;
 Json::Value get_my_info(const std::string &me) ;
 bool sql_check(const std::string &usesr, const std::string &passwd = "@DEFAULT@") ;
