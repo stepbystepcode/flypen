@@ -9,11 +9,11 @@ using namespace drogon;
 typedef void (*HandlerFunc)(const Json::Value &, std::string *, int *);
 
 
-void userInit(std::string username)
+void userInit(const std::string& username, const std::string& nonce)
 {
     std::string sender="FlypenTeam";
     std::string message="Welcome to flypen! We are glad to see you here!";
-    sql_addhistory( sender, username, message, "0");
+    sql_addhistory( sender, username, message, nonce, "0");
     return ;
 }
 
@@ -81,7 +81,8 @@ void registerUser(const Json::Value &req_json, std::string *msg, int *code)
         sql_add(req_json["username"].asString(), sha256(req_json["password"].asString()), req_json["avatar"].asInt(), req_json["public_key"].asString());
         
         *msg = "Sign up Success";
-        userInit(req_json["username"].asString());
+        std::string nonce = req_json["nonce"].asString();
+        userInit(req_json["username"].asString(), nonce);
         *code = 200;
     }
     else

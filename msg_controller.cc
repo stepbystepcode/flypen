@@ -21,17 +21,14 @@ void getPublicKey(const HttpRequestPtr& req, std::function<void(const HttpRespon
 // send a message
 void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
-    auto body = req->getBody();
     Json::Value req_json, res_json;
-    Json::Reader reader;
-    std::string bodyStr(body);
-    if (!reader.parse(bodyStr, req_json))
+
+    if (!Json::Reader().parse(std::string(req->getBody()), req_json))
     {
         callback(HttpResponse::newHttpResponse());
         return;
     }
 
-    Json::FastWriter writer;
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
 
@@ -40,12 +37,12 @@ void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
         std::string sender = jwtDecrypt(req->getHeader("Authorization").substr(7));
         std::string content = req_json["content"].asString();
         std::string receiver = req_json["receiver"].asString();
+        std::string nonce = req_json["nonce"].asString();
 
-        sql_addhistory(sender, receiver, content, "0");
-        std::string msg = req_json["content"].asString();
+        sql_addhistory(sender, receiver, content, nonce, "0");
         res_json["message"] = "message Send Success";
         res_json["code"] = 200;
-        std::cout<<"INFO: "<<sender<<" send "<<msg<<" to "<<receiver<<std::endl;
+        std::cout << "INFO: " << sender << " send " << content << " to " << receiver << std::endl;
     }
     else
     {
@@ -53,8 +50,7 @@ void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
         res_json["code"] = 401;
     }
 
-    auto output = writer.write(res_json);
-    res->setBody(output);
+    res->setBody(Json::FastWriter().write(res_json));
     callback(res);
 }
 
@@ -62,17 +58,20 @@ void chat(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)
 void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback)
 {
     auto check_type = req->getParameter("type");
-    Json::Value res_json;
-    Json::Reader reader;
-    std::string me;
-    Json::FastWriter writer;
+    Json::Value res_json, req_json;
+
+    if(!Json::Reader().parse(std::string(req->getBody()), req_json)) {
+        callback(HttpResponse::newHttpResponse());
+        return;
+    }
+
     auto res = HttpResponse::newHttpResponse();
     res->addHeader("Access-Control-Allow-Origin", "*");
 
     if (jwtVerify(req))
     {
-        me = jwtDecrypt(req->getHeader("Authorization").substr(7));
-        res_json["message"] = sql_find_my_msg(me, check_type);
+        std::string me = jwtDecrypt(req->getHeader("Authorization").substr(7));
+        res_json = sql_find_my_msg(me, check_type);
         res_json["code"] = 200;
     }
     else
@@ -81,9 +80,7 @@ void check(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &
         res_json["code"] = 401;
     }
 
-    auto output = writer.write(res_json);
-    res->setBody(output);
-
+    res->setBody(Json::FastWriter().write(res_json));
     callback(res);
 }
 

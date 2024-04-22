@@ -173,12 +173,12 @@ void sql_addrequest(const std::string &sender, const std::string &receiver) {
     }
 }
 
-void sql_addhistory(const std::string &sender, const std::string &receiver, const std::string &message, const std::string &isread) {
+void sql_addhistory(const std::string &sender, const std::string &receiver, const std::string &message, const std::string& nonce, const std::string &isread) {
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
-        std::string insertData = "INSERT INTO chat(content, sender_isread, receiver_isread, sender, receiver, time) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)";
-        txn.exec_params(insertData, message, isread, isread, sender, receiver);
+        std::string insertData = "INSERT INTO chat(content, sender_isread, receiver_isread, sender, receiver, time, nonce) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)";
+        txn.exec_params(insertData, message, isread, isread, sender, receiver, nonce);
         txn.commit();
     } catch (const std::exception &e) {
         std::cerr << "SQL Exception in sql_addhistory: " << e.what() << std::endl;
@@ -310,13 +310,12 @@ Json::Value sql_find_my_msg(const std::string &me, const std::string &connect_ty
                 std::string key = (sender == me) ? receiver : sender;
                 Json::Value &messages = sender_messages[key];
 
-                std::string content = row["content"].as<std::string>();
-                std::string time = row["time"].as<std::string>();
-
-                item["content"] = content;
-                item["time"] = time;
                 item["sender"] = sender;
                 item["receiver"] = receiver;
+
+                item["content"] = row["content"].as<std::string>();
+                item["time"] = row["time"].as<std::string>();
+                item["nonce"] = row["nonce"].as<std::string>();
 
                 messages.append(item);
             }
