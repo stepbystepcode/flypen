@@ -189,7 +189,7 @@ void sql_add(const std::string &username, const std::string &passwd, int avatar,
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
-        std::string insertData = "INSERT INTO users(username, password, avatar, friends, createtime, public_key) VALUES ($1, $2, $3, 'FlypenTeam', CURRENT_TIMESTAMP, $4)";
+        std::string insertData = "INSERT INTO users(username, password, avatar, friends, req, createtime, public_key) VALUES ($1, $2, $3, 'FlypenTeam', '' ,CURRENT_TIMESTAMP, $4)";
         txn.exec_params(insertData, username, passwd, avatar, public_key);
         txn.commit();
     } catch (const std::exception &e) {
@@ -197,19 +197,26 @@ void sql_add(const std::string &username, const std::string &passwd, int avatar,
     }
 }
 
-Json::Value get_my_info(const std::string &me) {
+Json::Value get_my_info(const std::string &me) 
+{
     Json::Value json;
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::nontransaction txn(conn);
-        if (!me.empty()) {
+
+        if (!me.empty()) 
+        {
             std::string sql = "SELECT * FROM users WHERE username = $1 LIMIT 1";
             pqxx::result res = txn.exec_params(sql, me);
-            if (!res.empty()) {
+
+            if (!res.empty()) 
+            {
                 Json::Value user;
                 int avatar = res[0]["avatar"].as<int>();
                 std::string friends = res[0]["friends"].as<std::string>();
+                
                 std::string req = res[0]["req"].as<std::string>();
+                
                 std::string registerTime = res[0]["createtime"].as<std::string>();
 
                 auto fetchUserInfo = [&](const std::string &token) -> Json::Value {
