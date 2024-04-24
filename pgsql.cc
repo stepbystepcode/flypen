@@ -10,12 +10,9 @@ std::string sql_query_public_key(const std::string& userName)
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
 
-        std::cout << userName << std::endl;
-
         std::string query = "SELECT public_key FROM users WHERE username=$1";
 
         pqxx::result result = txn.exec_params(query, userName);
-        std::cout << result[0][0].as<std::string>() << std::endl;
         
         return result[0][0].as<std::string>();
     } 
