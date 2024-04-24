@@ -105,22 +105,18 @@ void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpRe
                 sql_addrequest(sender, receiver);
                 res_json["code"] = 200;
                 res_json["message"] = "Operation Success";
-                // res->setBody("Success");
             }
             else
             {
                 res_json["code"] = 404;
                 res_json["message"] = "No this user";
-                // res->setBody("No this body");
             }
-            // res->setBody("No this body");
         }
         else
         {
             sql_delete_operation(sender, receiver);
             res_json["code"] = 200;
             res_json["message"] = " Delete Operation Success";
-            // res->setBody("Success");
         }
     }
     else
