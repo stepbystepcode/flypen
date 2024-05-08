@@ -10,12 +10,9 @@ std::string sql_query_public_key(const std::string& userName)
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
 
-        std::cout << userName << std::endl;
-
         std::string query = "SELECT public_key FROM users WHERE username=$1";
 
         pqxx::result result = txn.exec_params(query, userName);
-        std::cout << result[0][0].as<std::string>() << std::endl;
         
         return result[0][0].as<std::string>();
     } 
@@ -37,20 +34,22 @@ void sql_unlocked(const std::string &DeleteName) {
     }
 }
 
-int sql_findexist(const std::string &receiver) {
+bool sql_findexist(const std::string &receiver) 
+{
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::nontransaction txn(conn);
-        std::string readData = "SELECT username FROM users";
-        pqxx::result res = txn.exec(readData);
-        for (const auto &row : res) {
-            if (receiver == row["username"].as<std::string>())
-                return 1;
-        }
+        std::string readData = "SELECT username FROM users WHERE username=$1 LIMIT 1";
+        pqxx::result res = txn.exec_params(readData, receiver);
+
+        if(!res.empty())
+            return true;
+
     } catch (const std::exception &e) {
         std::cerr << "SQL Exception in sql_findexist: " << e.what() << std::endl;
     }
-    return 0;
+
+    return false;
 }
 
 int lockcheck(const std::string &filename) {
@@ -137,15 +136,16 @@ void sql_process_request(const std::string &sender, const std::string &receiver,
     }
 }
 
-void sql_addrequest(const std::string &sender, const std::string &receiver) {
-    
+void sql_addrequest(const std::string &sender, const std::string &receiver) 
+{
     if(sender == receiver)
     {
         std::cout << "ERROR: SAME NAME\n";
         return;
     }
 
-    try {
+    try 
+    {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
 
@@ -154,15 +154,20 @@ void sql_addrequest(const std::string &sender, const std::string &receiver) {
         
         // 数据库中的字段默认有一个元素为空
         if(res[0][0].is_null()) res.clear();
-        
+
         std::string updateQuery = "UPDATE users SET req = $1 WHERE username = $2";
-        if(res.empty()) 
+
+        if(!res[0][0].size()) {
             txn.exec_params(updateQuery, sender, receiver);
+        }
         else 
         {
-            std::string req = res[0]["req"].as<std::string>();
+            std::string req = res[0][0].as<std::string>();
             size_t pos = req.find(sender);
-            if (pos != std::string::npos) return;
+            
+            if (pos != std::string::npos) 
+                return;
+            
             if (!req.empty())
                 txn.exec_params(updateQuery, req + "," + sender, receiver);
         }
@@ -189,7 +194,7 @@ void sql_add(const std::string &username, const std::string &passwd, int avatar,
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::work txn(conn);
-        std::string insertData = "INSERT INTO users(username, password, avatar, friends, createtime, public_key) VALUES ($1, $2, $3, 'FlypenTeam', CURRENT_TIMESTAMP, $4)";
+        std::string insertData = "INSERT INTO users(username, password, avatar, friends, req, createtime, public_key) VALUES ($1, $2, $3, 'FlypenTeam', '' ,CURRENT_TIMESTAMP, $4)";
         txn.exec_params(insertData, username, passwd, avatar, public_key);
         txn.commit();
     } catch (const std::exception &e) {
@@ -197,19 +202,26 @@ void sql_add(const std::string &username, const std::string &passwd, int avatar,
     }
 }
 
-Json::Value get_my_info(const std::string &me) {
+Json::Value get_my_info(const std::string &me) 
+{
     Json::Value json;
     try {
         pqxx::connection conn("host=127.0.0.1 port=5432 dbname=flypen user=postgres password=abc.123");
         pqxx::nontransaction txn(conn);
-        if (!me.empty()) {
+
+        if (!me.empty()) 
+        {
             std::string sql = "SELECT * FROM users WHERE username = $1 LIMIT 1";
             pqxx::result res = txn.exec_params(sql, me);
-            if (!res.empty()) {
+
+            if (!res.empty()) 
+            {
                 Json::Value user;
                 int avatar = res[0]["avatar"].as<int>();
                 std::string friends = res[0]["friends"].as<std::string>();
+                
                 std::string req = res[0]["req"].as<std::string>();
+                
                 std::string registerTime = res[0]["createtime"].as<std::string>();
 
                 auto fetchUserInfo = [&](const std::string &token) -> Json::Value {

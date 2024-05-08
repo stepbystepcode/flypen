@@ -8,12 +8,17 @@ using namespace drogon;
 void getPublicKey(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr& )> && callback)
 {
     Json::Value res_json;
-    auto recipient = req->getParameter("recipient"); // Read "recipient" parameter from request
+
     auto res = HttpResponse::newHttpResponse();
+    res->addHeader("Access-Control-Allow-Origin", "*");
+
+    auto recipient = req->getParameter("recipient"); // Read "recipient" parameter from request
     std::string public_key = sql_query_public_key(recipient); // Use recipient parameter
+
     res_json["code"] = 200;
     res_json["message"] = "Public Key query Successfully!!!";
     res_json["public_key"] = public_key;
+
     res->setBody(Json::FastWriter().write(res_json));
     callback(res);
 }
@@ -105,22 +110,18 @@ void friend_operation(const HttpRequestPtr &req, std::function<void(const HttpRe
                 sql_addrequest(sender, receiver);
                 res_json["code"] = 200;
                 res_json["message"] = "Operation Success";
-                // res->setBody("Success");
             }
             else
             {
                 res_json["code"] = 404;
                 res_json["message"] = "No this user";
-                // res->setBody("No this body");
             }
-            // res->setBody("No this body");
         }
         else
         {
             sql_delete_operation(sender, receiver);
             res_json["code"] = 200;
             res_json["message"] = " Delete Operation Success";
-            // res->setBody("Success");
         }
     }
     else
