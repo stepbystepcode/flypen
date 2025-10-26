@@ -1,0 +1,28 @@
+services:
+  # 这是您的 flypen C++ 应用
+  app:
+    build: .
+    ports:
+      - "8081:8081" # 映射应用端口
+    volumes:
+      # 挂载配置文件，方便修改
+      - ./config.json:/app/config.json
+    depends_on:
+      - db  # 确保数据库先于应用启动
+    command: /app/flypen
+
+  # 这是 MariaDB 数据库服务 (兼容 MySQL)
+  db:
+    image: mariadb:10.6  # 使用一个稳定的 MariaDB 版本
+    environment:
+      MYSQL_ROOT_PASSWORD: root        # root 用户的密码
+      MYSQL_DATABASE: flypen           # 要自动创建的数据库名
+      MYSQL_USER: flypen_user          # 为应用创建的专用用户
+      MYSQL_PASSWORD: flypen_pass        # 专用用户的密码
+    ports:
+      - "3306:3306" # 映射 MySQL/MariaDB 的默认端口
+    volumes:
+      - mariadb-data:/var/lib/mysql # 持久化数据库数据
+
+volumes:
+  mariadb-data:

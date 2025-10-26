@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+// #include <map> // <-- 撤销此修改，不再需要
 
 std::string return_status(std::string result, const std::string &command, Json::Value &res_json)
 {
@@ -93,6 +94,12 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
 
     if (jwtVerify(req))
     {
+        // --- 修改开始: 定义固定路径 ---
+        const std::string rootPath = "/app/root";
+        const std::string parentPath = "/app"; // "/app/root"的父目录
+        // --- 修改结束 ---
+
+
         enum Command
         {
             tree,
@@ -103,10 +110,33 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
             touch,
             cat
         } command;
-        char *pathvar;
-        pathvar = getenv("PWD");
+        
+        // --- 撤销修改: 恢复使用你原来的 stoi 逻辑，因为它是正确的 ---
+        // char *pathvar; // <-- 移除
+        // pathvar = getenv("PWD"); // <-- 移除
 
-        command = static_cast<Command>(stoi(req->getJsonObject()->get("command", "").asString()));
+        try {
+             command = static_cast<Command>(stoi(req->getJsonObject()->get("command", "").asString()));
+        } catch (const std::invalid_argument& e) {
+            // 如果 "command" 不是一个有效的数字字符串 (比如为空, "abc"), stoi 会抛出异常
+            res_json["code"] = 400;
+            res_json["message"] = "Invalid command format";
+            auto output = writer.write(res_json);
+            res->setBody(output);
+            callback(res);
+            return;
+        } catch (const std::out_of_range& e) {
+            // 如果数字太大
+            res_json["code"] = 400;
+            res_json["message"] = "Invalid command range";
+            auto output = writer.write(res_json);
+            res->setBody(output);
+            callback(res);
+            return;
+        }
+        // --- 撤销修改结束 ---
+
+
         std::string params1 = req->getJsonObject()->get("params", "")[0].asString();
         std::string params2 = req->getJsonObject()->get("params", "")[1].asString();
 
@@ -117,17 +147,20 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
         }
         else
         {
-            switch (command)
+            // --- 修改开始: 移除 getenv("PWD") 并使用 rootPath ---
+            switch (command) 
             {
             case tree:
-                result = shell_commands(("cd " + std::string(pathvar) + "/.. " + "&&" + "tree -J root").c_str());
+                // 原逻辑是 "cd " + pathvar + "/.. " + "&&" + "tree -J root"
+                // 替换为 "cd /app && tree -J root"
+                result = shell_commands(("cd " + parentPath + " &&" + " tree -J root").c_str());
                 break;
             case cp:
-                result = shell_commands(("cp -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+                result = shell_commands(("cp -v " + rootPath + "/" + params1 + " " + rootPath + "/" + params2).c_str());
                 result = return_status(result, "cp", res_json);
                 break;
             case mv:
-                result = shell_commands(("mv -v " + std::string(pathvar) + "/../root/" + params1 + " " + std::string(pathvar) + "/../root/" + params2).c_str());
+                result = shell_commands(("mv -v " + rootPath + "/" + params1 + " " + rootPath + "/" + params2).c_str());
                 result = return_status(result, "mv", res_json);
                 break;
             case rm:
@@ -137,17 +170,17 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
                     res_json["code"] = 400;
                     break;
                 }
-                result = shell_commands(("rm -rf -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+                result = shell_commands(("rm -rf -v " + rootPath + "/" + params1).c_str());
                 result = return_status(result, "rm", res_json);
                 break;
             case mkdir:
-                result = shell_commands(("mkdir -v " + std::string(pathvar) + "/../root/" + params1).c_str());
+                result = shell_commands(("mkdir -v " + rootPath + "/" + params1).c_str());
                 result = return_status(result, "mkdir", res_json);
                 break;
             case touch:
-                if (shell_commands(("ls  -l " + std::string(pathvar) + "/../root/" + params1 + "| grep ^- ").c_str()).empty())
+                if (shell_commands(("ls  -l " + rootPath + "/" + params1 + "| grep ^- ").c_str()).empty())
                 {
-                    shell_commands(("touch " + std::string(pathvar) + "/../root/" + params1).c_str());
+                    shell_commands(("touch " + rootPath + "/" + params1).c_str());
                     result = "success";
                     res_json["code"] = 200;
                 }
@@ -158,7 +191,7 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
                 }
                 break;
             case cat:
-                result = shell_commands(("cat " + std::string(pathvar) + "/../root/" + params1).c_str());
+                result = shell_commands(("cat " + rootPath + "/" + params1).c_str());
                 res_json["code"] = 200;
                 break;
             default:
@@ -166,6 +199,7 @@ void commandsCtrl(const HttpRequestPtr &req, std::function<void(const HttpRespon
                 res_json["code"] = 400;
                 break;
             }
+            // --- 修改结束 ---
         }
     }
     else
@@ -201,11 +235,16 @@ void saveFile(const HttpRequestPtr &req, std::function<void(const HttpResponsePt
             callback(HttpResponse::newHttpResponse());
             return;
         }
-        char *pathvar;
-        pathvar = getenv("PWD");
+        
+        // --- 修改开始: 移除 getenv("PWD") 并使用固定路径 ---
+        const std::string rootPath = "/app/root";
+        // char *pathvar; // <-- 移除
+        // pathvar = getenv("PWD"); // <-- 移除
         std::string filename = req_json["filename"].asString();
         std::string content = req_json["content"].asString();
-        std::string result = shell_commands(("echo '" + content + "'>" + std::string(pathvar) + "/../root/" + filename).c_str());
+        // std::string result = shell_commands(("echo '" + content + "'>" + std::string(pathvar) + "/../root/" + filename).c_str()); // <-- 旧代码
+        std::string result = shell_commands(("echo '" + content + "' > " + rootPath + "/" + filename).c_str()); // <-- 新代码
+        // --- 修改结束 ---
 
         sql_unlocked(filename);
 

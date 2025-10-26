@@ -6,7 +6,7 @@
 extern sql::mysql::MySQL_Driver *driver;
 void sql_unlocked(const std::string& DeleteName)
 {
-    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
     con->setSchema("flypen");
     sql::Statement *stmt = con->createStatement();
     try
@@ -26,7 +26,7 @@ void sql_unlocked(const std::string& DeleteName)
 
 int sql_findexist(const std::string& receiver)
 {
-    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
     con->setSchema("flypen");
     std::string readdata = "SELECT username FROM users";
     sql::PreparedStatement *readdatament = con->prepareStatement(readdata);
@@ -45,7 +45,7 @@ int sql_findexist(const std::string& receiver)
 }
 int lockcheck(const std::string& filename)
 {
-    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
     con->setSchema("flypen");
     std::string readData = "SELECT filename FROM file";
     sql::PreparedStatement *readdatament = con->prepareStatement(readData);
@@ -96,7 +96,7 @@ void process(sql::PreparedStatement *readDatament, std::vector<std::string> s, s
 
 void sql_delete_operation(const std::string& sender, const std::string& receiver)
 {
-    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
 
     con->setSchema("flypen");
     std::vector<std::string> s;
@@ -115,7 +115,7 @@ void sql_delete_operation(const std::string& sender, const std::string& receiver
 void sql_process_request(const std::string& sender, const std::string& receiver, const std::string& attitude)
 {
     std::vector<std::string> usernamelist;
-    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
     con->setSchema("flypen");
 
     std::string readData = "SELECT req FROM users WHERE username = ?";
@@ -194,7 +194,7 @@ void sql_process_request(const std::string& sender, const std::string& receiver,
 void sql_addrequest(const std::string& sender, const std::string& receiver)
 {
     std::vector<std::string> usernamelist;
-    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
     con->setSchema("flypen");
 
     sql::Statement *tool = con->createStatement();
@@ -242,7 +242,7 @@ void sql_addhistory(const std::string& sender, const std::string& receiver, cons
 {
     try
     {
-        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
         con->setSchema("flypen");
 
         std::string classMysql = "INSERT INTO chat(content, sender_isread,receiver_isread, sender, receiver, time) VALUES (?, ?, ? , ?, ?, NOW())";
@@ -270,19 +270,19 @@ void sql_add(const std::string& username, const std::string& passwd, int avatar)
 {
     try
     {
-        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
         con->setSchema("flypen");
 
         sql::Statement *tool = con->createStatement();
-        std::string classMysql = "INSERT INTO users(username, password, avatar ,friends, createtime) VALUES (?, ?, ?,? , NOW())";
+        std::string classMysql = "INSERT INTO users(username, password, avatar ,friends, createtime, req) VALUES (?, ?, ?, ?, NOW(), ?)";
         sql::PreparedStatement *ptool = con->prepareStatement(classMysql);
 
         ptool->setString(1, username);
         ptool->setString(2, passwd);
         ptool->setInt(3, avatar);
         ptool->setString(4, "FlypenTeam");
+        ptool->setString(5, "");
         ptool->executeUpdate();
-
         con->close();
         delete ptool;
         delete tool;
@@ -301,7 +301,7 @@ Json::Value get_my_info(const std::string& me)
     try
     {
         sql::Connection *con;
-        con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
         con->setSchema("flypen");
         if (!me.empty())
         {
@@ -387,7 +387,7 @@ bool sql_check(const std::string& user, const std::string& passwd)
     bool result = false;
     try
     {
-        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
         con->setSchema("flypen");
 
         std::string sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
@@ -429,7 +429,7 @@ Json::Value sql_find_my_msg(const std::string& me, const std::string& connect_ty
     // std::cout << "login user: " << me << std::endl;
     try
     {
-        sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+        sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
         con->setSchema("flypen");
         sql::PreparedStatement *prepStmt;
         //===================    find begin
@@ -530,7 +530,7 @@ Json::Value sql_find_my_msg(const std::string& me, const std::string& connect_ty
 
 void set_avatar(const std::string& person, int avatar)
 {
-    sql::Connection *con = driver->connect("tcp://8.130.48.157:3306", "root", "abc.123");
+    sql::Connection *con = driver->connect("tcp://db:3306", "flypen_user", "flypen_pass");
     con->setSchema("flypen");
     std::string update_sql = "UPDATE users SET avatar = ? WHERE username = ?";
     sql::PreparedStatement *updateStatement = con->prepareStatement(update_sql);

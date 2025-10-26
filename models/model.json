@@ -1,20 +1,18 @@
 {
     //rdbms: server type, postgresql,mysql or sqlite3
-    "rdbms": "postgresql",
+    "rdbms": "mysql",
     //filename: sqlite3 db file name
     //"filename":"",
     //host: server address,localhost by default;
-    "host": "127.0.0.1",
+    "host": "db",
     //port: server port, 5432 by default;
-    "port": 5432,
+    "port": 3306,
     //dbname: Database name;
-    "dbname": "",
-    //schema: valid for postgreSQL, "public" by default;
-    "schema": "public",
+    "dbname": "flypen",
     //user: User name
-    "user": "",
+    "user": "flypen_user",
     //password or passwd: Password
-    "password": "",
+    "password": "flypen_pass",
     //client_encoding: The character set used by drogon_ctl. it is empty string by default which 
     //means use the default character set.
     //"client_encoding": "",
@@ -31,7 +29,7 @@
                 "method": {
                     //after_db_read: name of the method which is called after reading from database, signature: void([const] std::shared_ptr [&])
                     "after_db_read": "decrypt_password",
-                    //before_db_write: name of the method which is called before writing to database, signature: void([const] std::shared_ptr [&])
+                    //before_db_write: name of the method which is called before writing to database, signature: void([const] std.shared_ptr [&])
                     "before_db_write": "encrypt_password"
                 },
                 "includes": [
